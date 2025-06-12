@@ -5,7 +5,7 @@ import SignInButton from "../../../components/SignInButton";
 
 export default async function SignIn() {
   const session = await getServerSession();
-  
+
   // If the user is already signed in, redirect to a success page
   // that will communicate with the extension
   if (session) {
@@ -15,19 +15,31 @@ export default async function SignIn() {
   const providers = await getProviders();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h1 className="mb-6 text-center text-2xl font-bold">Sign in to AskShot</h1>
-        <div className="space-y-4">
-          {providers &&
-            Object.values(providers).map((provider) => (
-              <div key={provider.name} className="flex justify-center">
-                <SignInButton 
-                  providerId={provider.id}
-                  providerName={provider.name}
-                />
-              </div>
-            ))}
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="w-[400px] bg-gradient-to-br from-indigo-50 via-white to-purple-50 rounded-2xl shadow-lg backdrop-blur-sm overflow-hidden border border-white/40">
+        <div className="p-6 bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm">
+          <div className="flex flex-col items-center justify-center py-4 gap-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-medium bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent mb-2">
+                AskShot
+              </h2>
+              <p className="text-sm text-gray-500/80">
+                Please login to continue
+              </p>
+            </div>
+
+            <div className="w-full space-y-4">
+              {providers &&
+                Object.values(providers).map((provider) => (
+                  <div key={provider.name} className="flex justify-center">
+                    <SignInButton
+                      providerId={provider.id}
+                      providerName={provider.name}
+                    />
+                  </div>
+                ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

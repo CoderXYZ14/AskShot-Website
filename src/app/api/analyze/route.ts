@@ -10,47 +10,24 @@ import {
   TextBlockParam,
 } from "@anthropic-ai/sdk/resources";
 
-// API route handler for analyzing screenshots with Claude Vision API
-
 export async function POST(request: NextRequest) {
   try {
-    // Parse the request body
     const body = await request.json();
     const { screenshot, question } = body;
 
-    // Validate input
-    if (!screenshot) {
+    if (!screenshot || !validateBase64Image(screenshot)) {
       return NextResponse.json(
-        { error: "Screenshot is required" },
+        { error: "Invalid or missing screenshot" },
         { status: 400 }
       );
     }
 
-    // Validate the screenshot
-    if (!validateBase64Image(screenshot)) {
-      return NextResponse.json(
-        {
-          error: "Invalid image format. Must be a base64 encoded image.",
-          details:
-            "The provided data does not appear to be a valid base64 encoded image.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Clean the base64 data
     const cleanedImageData = cleanBase64Image(screenshot);
+    const mediaTypeMatch = screenshot.match(/^data:image\/(\w+);base64,/);
+    const mediaType = mediaTypeMatch
+      ? `image/${mediaTypeMatch[1]}`
+      : "image/png";
 
-    // Determine the media type from the data URL if present
-    let mediaType = "image/png";
-    if (screenshot.startsWith("data:image/")) {
-      const match = screenshot.match(/^data:image\/(\w+);base64,/);
-      if (match && match[1]) {
-        mediaType = `image/${match[1]}`;
-      }
-    }
-
-    // Prepare the message content using proper SDK types
     const content: ContentBlockParam[] = [
       {
         type: "image",
@@ -68,32 +45,19 @@ export async function POST(request: NextRequest) {
       } as TextBlockParam,
     ];
 
-    // Call the Anthropic API
-
     const response = await anthropicClient.messages.create({
-      model: "claude-3-sonnet-20240229", // You can adjust the model as needed
+      model: "claude-3-sonnet-20240229",
       max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content,
-        },
-      ],
+      messages: [{ role: "user", content }],
     });
 
-    // Extract and return the response
-    const answer = response.content[0].text;
+    const answer = (response.content[0] as TextBlockParam).text;
 
-    return NextResponse.json({
-      answer,
-      status: "success",
-    });
+    return NextResponse.json({ answer, status: "success" });
   } catch (error) {
-    console.error("Error processing image:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    console.error("AnthropicAnalyse | Error:", error);
     return NextResponse.json(
-      { error: "Failed to process image", details: errorMessage },
+      { error: "Failed to process image", details: String(error) },
       { status: 500 }
     );
   }
