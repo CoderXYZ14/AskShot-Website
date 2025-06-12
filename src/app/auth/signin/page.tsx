@@ -6,8 +6,6 @@ import SignInButton from "../../../components/SignInButton";
 export default async function SignIn() {
   const session = await getServerSession();
 
-  // If the user is already signed in, redirect to a success page
-  // that will communicate with the extension
   if (session) {
     redirect("/auth/success");
   }
