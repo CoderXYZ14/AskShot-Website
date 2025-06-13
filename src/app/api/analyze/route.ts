@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import {
   anthropicClient,
   validateBase64Image,
@@ -9,9 +10,18 @@ import {
   ImageBlockParam,
   TextBlockParam,
 } from "@anthropic-ai/sdk/resources";
+import dbConnect from "@/lib/dbConnect";
+import ScreenshotModel from "@/models/Screenshot";
+import QuestionModel from "@/models/Question";
+import { authOptions } from "../auth/[...nextauth]/options";
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { screenshot, question } = body;
 
@@ -53,7 +63,36 @@ export async function POST(request: NextRequest) {
 
     const answer = (response.content[0] as TextBlockParam).text;
 
-    return NextResponse.json({ answer, status: "success" });
+    // Connect to the database
+    await dbConnect();
+
+    // Check if the same screenshot already exists for this user
+    let screenshotDoc = await ScreenshotModel.findOne({
+      userId: session.user.id,
+      imageUrl: screenshot,
+    });
+
+    // If the screenshot doesn't exist, create a new entry
+    if (!screenshotDoc) {
+      screenshotDoc = await ScreenshotModel.create({
+        userId: session.user.id,
+        imageUrl: screenshot,
+      });
+    }
+
+    // Store the question and answer
+    await QuestionModel.create({
+      userId: session.user.id,
+      screenshotId: screenshotDoc._id,
+      question,
+      answer,
+    });
+
+    return NextResponse.json({
+      answer,
+      status: "success",
+      screenshotId: screenshotDoc._id,
+    });
   } catch (error) {
     console.error("AnthropicAnalyse | Error:", error);
     return NextResponse.json(

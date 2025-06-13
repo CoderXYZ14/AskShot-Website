@@ -19,6 +19,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Image URL is required" }, { status: 400 });
     }
 
+    // Check if the same image already exists for this user
+    const existingScreenshot = await ScreenshotModel.findOne({
+      userId: session.user.id,
+      imageUrl
+    });
+
+    if (existingScreenshot) {
+      // If the image already exists, return the existing screenshot
+      return NextResponse.json({ success: true, screenshot: existingScreenshot }, { status: 200 });
+    }
+
+    // If the image doesn't exist, create a new entry
     const screenshot = await ScreenshotModel.create({
       userId: session.user.id,
       imageUrl,
