@@ -14,6 +14,7 @@ import dbConnect from "@/lib/dbConnect";
 import ScreenshotModel from "@/models/Screenshot";
 import QuestionModel from "@/models/Question";
 import { authOptions } from "../auth/[...nextauth]/options";
+import mongoose from "mongoose";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { screenshot, question } = body;
+    const { screenshot, question, screenshotId } = body;
 
     if (!screenshot || !validateBase64Image(screenshot)) {
       return NextResponse.json(
@@ -66,11 +67,26 @@ export async function POST(request: NextRequest) {
     // Connect to the database
     await dbConnect();
 
-    // Check if the same screenshot already exists for this user
-    let screenshotDoc = await ScreenshotModel.findOne({
-      userId: session.user.id,
-      imageUrl: screenshot,
-    });
+    let screenshotDoc;
+    
+    // If a screenshot ID is provided, try to find that screenshot
+    if (screenshotId && mongoose.Types.ObjectId.isValid(screenshotId)) {
+      screenshotDoc = await ScreenshotModel.findOne({
+        _id: screenshotId,
+        userId: session.user.id
+      });
+      
+      // If the screenshot with the provided ID doesn't exist or doesn't belong to the user,
+      // we'll create a new one below
+    }
+    
+    // If no screenshot ID was provided or the screenshot wasn't found, check if the same image exists
+    if (!screenshotDoc) {
+      screenshotDoc = await ScreenshotModel.findOne({
+        userId: session.user.id,
+        imageUrl: screenshot,
+      });
+    }
 
     // If the screenshot doesn't exist, create a new entry
     if (!screenshotDoc) {
