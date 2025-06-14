@@ -13,6 +13,7 @@ import {
 import dbConnect from "@/lib/dbConnect";
 import ScreenshotModel from "@/models/Screenshot";
 import QuestionModel from "@/models/Question";
+import UserModel from "@/models/User";
 import { authOptions } from "../auth/[...nextauth]/options";
 import mongoose from "mongoose";
 
@@ -21,6 +22,24 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    
+    // Connect to the database
+    await dbConnect();
+    
+    // Check user's free trials
+    const user = await UserModel.findOne({ email: session.user.email });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+    
+    // Check if user has free trials left
+    if (user.freeTrialsLeft <= 0) {
+      return NextResponse.json({ 
+        error: "No credits left", 
+        freeTrialsLeft: 0,
+        isExpired: true 
+      }, { status: 403 });
     }
 
     const body = await request.json();
@@ -64,9 +83,6 @@ export async function POST(request: NextRequest) {
 
     const answer = (response.content[0] as TextBlockParam).text;
 
-    // Connect to the database
-    await dbConnect();
-
     let screenshotDoc;
     
     // If a screenshot ID is provided, try to find that screenshot
@@ -103,11 +119,17 @@ export async function POST(request: NextRequest) {
       question,
       answer,
     });
+    
+    // Decrement the user's free trials
+    user.freeTrialsLeft = Math.max(0, user.freeTrialsLeft - 1);
+    await user.save();
 
     return NextResponse.json({
       answer,
       status: "success",
       screenshotId: screenshotDoc._id,
+      freeTrialsLeft: user.freeTrialsLeft,
+      isExpired: user.freeTrialsLeft <= 0
     });
   } catch (error) {
     console.error("AnthropicAnalyse | Error:", error);
