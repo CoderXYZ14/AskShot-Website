@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView } from "motion/react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Chrome,
   Zap,
@@ -48,6 +50,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Link from "next/link";
+import Script from "next/script";
+import axios from "axios";
 
 interface PricingPlan {
   name: string;
@@ -57,6 +61,12 @@ interface PricingPlan {
   features: string[];
   popular?: boolean;
   cta: string;
+}
+
+declare global {
+  interface Window {
+    Cashfree: any;
+  }
 }
 
 interface Testimonial {
@@ -120,19 +130,30 @@ const AnimatedGrid: React.FC = () => {
 const AskShotLanding: React.FC = () => {
   const [isDark, setIsDark] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isYearly, setIsYearly] = useState(false);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  // Add these to your component's state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [cashfreeLoaded, setCashfreeLoaded] = useState(false);
+  const [isYearly, setIsYearly] = useState(false);
 
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDark]);
+  // Add this interface
+  interface PricingPlan {
+    name: string;
+    price: string;
+    period: string;
+    description: string;
+    features: string[];
+    popular?: boolean;
+    cta: string;
+  }
 
+  // Add this pricing plans configuration
   const pricingPlans: PricingPlan[] = [
     {
       name: "Free",
@@ -180,6 +201,67 @@ const AskShotLanding: React.FC = () => {
       cta: "Contact Sales",
     },
   ];
+
+  // Add this useEffect for Cashfree initialization
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.Cashfree) {
+      setCashfreeLoaded(true);
+    }
+  }, []);
+
+  // Add this payment handler function
+  const handleUpgrade = async () => {
+    if (status !== "authenticated") {
+      router.push("/auth/signin");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await axios.post("/api/payment/create-order");
+      console.log("Payment API response:", response.data);
+
+      if (response.data.sessionId) {
+        const cashfree = window.Cashfree({
+          mode: "sandbox",
+        });
+
+        cashfree.checkout({
+          paymentSessionId: response.data.sessionId,
+          redirectTarget: "_self",
+          components: [
+            "order-details",
+            "card",
+            "upi",
+            "netbanking",
+            "app",
+            "paylater",
+          ],
+          theme: {
+            primaryColor: "#6366F1",
+            secondaryColor: "#C4B5FD",
+          },
+        });
+      } else {
+        setError("Failed to create payment session");
+      }
+    } catch (error) {
+      console.error("Error creating payment:", error);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDark]);
 
   const testimonials: Testimonial[] = [
     {
@@ -788,6 +870,11 @@ const AskShotLanding: React.FC = () => {
 
       {/* Pricing Section */}
       <section id="pricing" className="py-32 relative">
+        <Script
+          src="https://sdk.cashfree.com/js/v3/cashfree.js"
+          onLoad={() => setCashfreeLoaded(true)}
+        />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -948,10 +1035,17 @@ const AskShotLanding: React.FC = () => {
                         }`}
                         variant={plan.popular ? "default" : "outline"}
                         size="lg"
+                        onClick={plan.popular ? handleUpgrade : undefined}
+                        disabled={plan.popular && loading}
                       >
-                        {plan.cta}
+                        {plan.popular && loading ? "Processing..." : plan.cta}
                       </Button>
                     </motion.div>
+                    {plan.popular && error && (
+                      <div className="mt-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm">
+                        {error}
+                      </div>
+                    )}
                   </div>
                 </Card>
               </motion.div>
