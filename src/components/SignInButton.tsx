@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { motion } from "motion/react";
 
 interface SignInButtonProps {
   providerId: string;
@@ -12,12 +13,14 @@ export default function SignInButton({
   providerName,
 }: SignInButtonProps) {
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
       onClick={() => signIn(providerId, { callbackUrl: "/auth/success" })}
-      className="relative w-full px-4 py-2 text-sm font-medium rounded-xl text-white overflow-hidden transition-all hover:shadow-lg group"
+      className="relative w-full px-6 py-3 text-base font-medium rounded-xl text-white overflow-hidden transition-all shadow-lg shadow-purple-500/25 group"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 transition-transform group-hover:scale-[1.02] duration-300" />
-      <div className="relative flex items-center justify-center gap-2">
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 transition-transform group-hover:from-purple-600 group-hover:to-cyan-600 duration-300" />
+      <div className="relative flex items-center justify-center gap-3">
         {providerName === "Google" && (
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
@@ -41,6 +44,6 @@ export default function SignInButton({
         )}
         Sign in with {providerName}
       </div>
-    </button>
+    </motion.button>
   );
 }
