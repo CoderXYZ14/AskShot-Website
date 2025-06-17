@@ -23,23 +23,26 @@ export async function POST(request: NextRequest) {
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
+
     // Connect to the database
     await dbConnect();
-    
+
     // Check user's free trials
     const user = await UserModel.findOne({ email: session.user.email });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    
+
     // Check if user has free trials left
     if (user.freeTrialsLeft <= 0) {
-      return NextResponse.json({ 
-        error: "No credits left", 
-        freeTrialsLeft: 0,
-        isExpired: true 
-      }, { status: 403 });
+      return NextResponse.json(
+        {
+          error: "No credits left",
+          freeTrialsLeft: 0,
+          isExpired: true,
+        },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
@@ -69,9 +72,17 @@ export async function POST(request: NextRequest) {
       } as ImageBlockParam,
       {
         type: "text",
-        text:
-          question ||
-          "What do you see in this screenshot? Please describe it in detail.",
+        text: `You are an expert AI that helps users understand screenshots of webpages they’ve selected by drawing on them. Analyze the screenshot and respond appropriately to the user's question.
+      
+      Guidelines:
+      1. If the image includes vulgar/explicit content, respond: "⚠️ This image may contain inappropriate content. Please upload a different screenshot."
+      2. If the image contains sensitive data (e.g. passwords, personal info), respond: "⚠️ This screenshot may include sensitive information. Please review before sharing further."
+      3. If the question is not related to the screenshot, say: "This question doesn’t seem related to the selected area. Want me to describe the image instead?"
+      4. If no question is provided, describe the screenshot as clearly as possible.
+      5. If the question is clear and related, give a precise, helpful answer.
+      6. Prefer short, direct responses (around 30–40 words) when the question is simple. Use longer, detailed responses **only when needed**.
+      
+      User’s question: "${question}"`,
       } as TextBlockParam,
     ];
 
@@ -84,18 +95,18 @@ export async function POST(request: NextRequest) {
     const answer = (response.content[0] as TextBlockParam).text;
 
     let screenshotDoc;
-    
+
     // If a screenshot ID is provided, try to find that screenshot
     if (screenshotId && mongoose.Types.ObjectId.isValid(screenshotId)) {
       screenshotDoc = await ScreenshotModel.findOne({
         _id: screenshotId,
-        userId: session.user.id
+        userId: session.user.id,
       });
-      
+
       // If the screenshot with the provided ID doesn't exist or doesn't belong to the user,
       // we'll create a new one below
     }
-    
+
     // If no screenshot ID was provided or the screenshot wasn't found, check if the same image exists
     if (!screenshotDoc) {
       screenshotDoc = await ScreenshotModel.findOne({
@@ -119,7 +130,7 @@ export async function POST(request: NextRequest) {
       question,
       answer,
     });
-    
+
     // Decrement the user's free trials
     user.freeTrialsLeft = Math.max(0, user.freeTrialsLeft - 1);
     await user.save();
@@ -129,7 +140,7 @@ export async function POST(request: NextRequest) {
       status: "success",
       screenshotId: screenshotDoc._id,
       freeTrialsLeft: user.freeTrialsLeft,
-      isExpired: user.freeTrialsLeft <= 0
+      isExpired: user.freeTrialsLeft <= 0,
     });
   } catch (error) {
     console.error("AnthropicAnalyse | Error:", error);
