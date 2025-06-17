@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
@@ -9,6 +9,15 @@ import { Sparkles, Check, X, Loader2 } from "lucide-react";
 
 // Floating particles component
 const FloatingParticles = () => {
+  const [dimensions, setDimensions] = useState({ width: 1000, height: 800 });
+  
+  useEffect(() => {
+    setDimensions({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  }, []);
+  
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(20)].map((_, i) => (
@@ -16,12 +25,12 @@ const FloatingParticles = () => {
           key={i}
           className="absolute w-1 h-1 bg-purple-400/30 rounded-full"
           initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * dimensions.width,
+            y: Math.random() * dimensions.height,
           }}
           animate={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * dimensions.width,
+            y: Math.random() * dimensions.height,
           }}
           transition={{
             duration: Math.random() * 20 + 10,
@@ -43,7 +52,7 @@ const AnimatedGrid = () => {
   );
 };
 
-export default function PaymentStatus() {
+function PaymentStatusContent() {
   const [status, setStatus] = useState<"loading" | "success" | "failed">(
     "loading"
   );
@@ -277,5 +286,13 @@ export default function PaymentStatus() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentStatus() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <PaymentStatusContent />
+    </Suspense>
   );
 }

@@ -11,14 +11,14 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       if (!user.email) return false;
 
       try {
         await dbConnect();
-        
+
         const existingUser = await UserModel.findOne({ email: user.email });
-        
+
         if (!existingUser) {
           await UserModel.create({
             email: user.email,
@@ -30,7 +30,7 @@ export const authOptions: NextAuthOptions = {
           existingUser.googleId = account.providerAccountId;
           await existingUser.save();
         }
-        
+
         return true;
       } catch (error) {
         console.error("Error during sign in:", error);
@@ -42,9 +42,9 @@ export const authOptions: NextAuthOptions = {
         try {
           await dbConnect();
           const user = await UserModel.findOne({ email: session.user.email });
-          
+
           if (user) {
-            session.user.id = user._id?.toString() || '';
+            session.user.id = user._id?.toString() || "";
             session.user.role = user.role;
             session.user.tier = user.tier;
           }
@@ -52,7 +52,7 @@ export const authOptions: NextAuthOptions = {
           console.error("Error fetching user session data:", error);
         }
       }
-      
+
       return session;
     },
   },

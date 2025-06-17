@@ -27,8 +27,8 @@ export interface CashfreeOrderResponse {
   order_expiry_time: string;
   order_note: string;
   payment_link: string;
-  settlements: any;
-  refunds: any;
+  settlements: Record<string, unknown>;
+  refunds: Record<string, unknown>;
   order_meta: {
     return_url: string;
   };
@@ -88,9 +88,10 @@ export async function createCashfreeOrder(orderData: CashfreeOrderData): Promise
     }
     
     return responseData;
-  } catch (error: any) {
-    console.error("Cashfree API error:", error.response?.data || error.message);
-    throw error;
+  } catch (error: unknown) {
+    const err = error as Error & { response?: { data?: unknown } };
+    console.error("Cashfree API error:", err.response?.data || err.message);
+    throw err;
   }
 }
 
@@ -104,8 +105,9 @@ export async function verifyPayment(orderId: string) {
     );
     
     return response.data;
-  } catch (error: any) {
-    console.error("Error verifying payment:", error.response?.data || error.message);
-    throw error;
+  } catch (error: unknown) {
+    const err = error as Error & { response?: { data?: unknown } };
+    console.error("Error verifying payment:", err.response?.data || err.message);
+    throw err;
   }
 }

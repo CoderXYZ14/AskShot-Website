@@ -1,13 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useInView,
-  AnimatePresence,
-} from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -26,16 +20,12 @@ import {
   Moon,
   Play,
   Download,
-  Users,
   Sparkles,
-  Eye,
-  Lock,
   Cpu,
-  FileText,
-  BarChart3,
   Twitter,
   Github,
   Linkedin,
+  Coffee,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,19 +50,19 @@ import Script from "next/script";
 import axios from "axios";
 import { signOut } from "next-auth/react";
 
-interface PricingPlan {
-  name: string;
-  price: string;
-  period: string;
-  description: string;
-  features: string[];
-  popular?: boolean;
-  cta: string;
-}
-
 declare global {
   interface Window {
-    Cashfree: any;
+    Cashfree: (config: { mode: string }) => {
+      checkout: (options: {
+        paymentSessionId: string;
+        redirectTarget: string;
+        components: string[];
+        theme?: {
+          primaryColor: string;
+          secondaryColor: string;
+        };
+      }) => void;
+    };
   }
 }
 
@@ -100,6 +90,17 @@ interface Step {
 
 // Floating particles component
 const FloatingParticles: React.FC = () => {
+  const [dimensions, setDimensions] = useState({ width: 1000, height: 800 });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+  }, []);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(20)].map((_, i) => (
@@ -107,12 +108,12 @@ const FloatingParticles: React.FC = () => {
           key={i}
           className="absolute w-1 h-1 bg-purple-400/30 rounded-full"
           initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * dimensions.width,
+            y: Math.random() * dimensions.height,
           }}
           animate={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
+            x: Math.random() * dimensions.width,
+            y: Math.random() * dimensions.height,
           }}
           transition={{
             duration: Math.random() * 20 + 10,
@@ -155,12 +156,8 @@ const AskShotLanding: React.FC = () => {
     setShowDropdown(false);
   }, [router]);
 
-  const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [cashfreeLoaded, setCashfreeLoaded] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
 
   // Add this interface
@@ -178,29 +175,31 @@ const AskShotLanding: React.FC = () => {
   const pricingPlans: PricingPlan[] = [
     {
       name: "Free",
-      price: "$0",
+      price: "₹0",
       period: "forever",
       description: "Perfect for trying out AskShot",
       features: [
-        "3 screenshots per day",
+        "5 AI chats per day",
+        "20 screenshots per day",
         "Basic AI analysis",
         "Chrome extension access",
         "Community support",
+        "SSO support",
       ],
       cta: "Get Started",
     },
     {
       name: "Pro",
-      price: isYearly ? "$50" : "$5",
+      price: isYearly ? "₹1899" : "₹199",
       period: isYearly ? "year" : "month",
       description: "For power users and professionals",
       features: [
-        "100 screenshots per day",
+        "20 AI chats per day",
+        "Unlimited screenshots per day",
         "Priority AI processing",
         "Advanced analysis features",
         "Email support",
-        "Export capabilities",
-        "Custom shortcuts",
+        "SSO support",
       ],
       popular: true,
       cta: "Start Pro Trial",
@@ -211,24 +210,16 @@ const AskShotLanding: React.FC = () => {
       period: "contact us",
       description: "For teams and organizations",
       features: [
-        "Unlimited screenshots",
+        "Everything in Pro plan",
+        "Customizable AI chats per day",
+        "Unlimited screenshots per day",
         "Team management",
-        "Analytics dashboard",
-        "API access",
         "Priority support",
-        "Custom integrations",
         "SSO support",
       ],
       cta: "Contact Sales",
     },
   ];
-
-  // Add this useEffect for Cashfree initialization
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.Cashfree) {
-      setCashfreeLoaded(true);
-    }
-  }, []);
 
   // Add this payment handler function
   const handleUpgrade = async () => {
@@ -331,7 +322,7 @@ const AskShotLanding: React.FC = () => {
       icon: <Shield className="h-6 w-6" />,
       title: "Privacy First",
       description:
-        "Your screenshots are processed securely and never stored. Complete privacy protection for sensitive content.",
+        "Your screenshots are processed and stored securely. Complete privacy protection for sensitive content.",
     },
     {
       icon: <Globe className="h-6 w-6" />,
@@ -367,12 +358,12 @@ const AskShotLanding: React.FC = () => {
     {
       question: "Is my screenshot data private and secure?",
       answer:
-        "Absolutely. Your screenshots are processed in real-time and never stored on our servers. We use end-to-end encryption and follow strict privacy protocols to ensure your sensitive information remains protected.",
+        "Yes, your screenshot data is stored securely. We use cryptographic hashing to anonymize and protect your data, ensuring it cannot be linked back to you. All transmissions are encrypted, and we follow strict security practices to safeguard your privacy.",
     },
     {
       question: "What AI model powers AskShot?",
       answer:
-        "AskShot uses advanced vision-language models optimized for understanding web content, code, designs, and documents. Our AI is specifically trained to analyze screenshots and provide accurate, contextual responses.",
+        "AskShot is powered by cutting-edge vision-language models. Free users use Claude 3, while Pro users get access to Claude 3.5 Sonnet — offering enhanced speed, accuracy, and deeper analysis for screenshots of code, content, or designs.",
     },
     {
       question: "Can I use AskShot on PDFs and dashboards?",
@@ -387,7 +378,7 @@ const AskShotLanding: React.FC = () => {
     {
       question: "Is there a limit to screenshot size?",
       answer:
-        "Free users can capture regions up to 1920x1080 pixels. Pro users have no size restrictions and can capture full-page screenshots with enhanced processing.",
+        "No. Both Free and Pro users can capture any part of the webpage visible in the browser window — from below the address bar to the bottom of the page. Developer tools and browser UI are not included.",
     },
   ];
 
@@ -480,7 +471,7 @@ const AskShotLanding: React.FC = () => {
                 Pricing
               </motion.a>
               <motion.a
-                href="#demo"
+                href="https://calendly.com/shahwaizislam/askshot-demo"
                 className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
                 whileHover={{ y: -2 }}
               >
@@ -987,7 +978,7 @@ const AskShotLanding: React.FC = () => {
               </div>
               <div className="flex-shrink-0">
                 <motion.a
-                  href="https://calendly.com/askshot/demo"
+                  href="https://calendly.com/shahwaizislam1404/30min"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block px-8 py-4 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 rounded-xl font-medium shadow-lg shadow-purple-500/25 text-white transition-all"
@@ -1074,10 +1065,7 @@ const AskShotLanding: React.FC = () => {
 
       {/* Pricing Section */}
       <section id="pricing" className="py-32 relative">
-        <Script
-          src="https://sdk.cashfree.com/js/v3/cashfree.js"
-          onLoad={() => setCashfreeLoaded(true)}
-        />
+        <Script src="https://sdk.cashfree.com/js/v3/cashfree.js" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -1104,7 +1092,7 @@ const AskShotLanding: React.FC = () => {
               viewport={{ once: true }}
             >
               Choose the plan that fits your needs. Start free, upgrade when
-              you're ready.
+              you&apos;re ready.
             </motion.p>
 
             <motion.div
@@ -1140,7 +1128,7 @@ const AskShotLanding: React.FC = () => {
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 >
                   <Badge className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white">
-                    Save 20%
+                    Save 20.5%%
                   </Badge>
                 </motion.div>
               )}
@@ -1231,19 +1219,36 @@ const AskShotLanding: React.FC = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Button
-                        className={`w-full py-4 text-lg ${
-                          plan.popular
-                            ? "bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-xl shadow-purple-500/25"
-                            : "border-purple-500/30 hover:bg-purple-500/10"
-                        }`}
-                        variant={plan.popular ? "default" : "outline"}
-                        size="lg"
-                        onClick={plan.popular ? handleUpgrade : undefined}
-                        disabled={plan.popular && loading}
-                      >
-                        {plan.popular && loading ? "Processing..." : plan.cta}
-                      </Button>
+                      {plan.name === "Enterprise" ? (
+                        <a
+                          href="https://calendly.com/shahwaizislam1404/30min"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full"
+                        >
+                          <Button
+                            className={`w-full py-4 text-lg border-purple-500/30 hover:bg-purple-500/10`}
+                            variant="outline"
+                            size="lg"
+                          >
+                            {plan.cta}
+                          </Button>
+                        </a>
+                      ) : (
+                        <Button
+                          className={`w-full py-4 text-lg ${
+                            plan.popular
+                              ? "bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-xl shadow-purple-500/25"
+                              : "border-purple-500/30 hover:bg-purple-500/10"
+                          }`}
+                          variant={plan.popular ? "default" : "outline"}
+                          size="lg"
+                          onClick={plan.popular ? handleUpgrade : undefined}
+                          disabled={plan.popular && loading}
+                        >
+                          {plan.popular && loading ? "Processing..." : plan.cta}
+                        </Button>
+                      )}
                     </motion.div>
                     {plan.popular && error && (
                       <div className="mt-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm">
@@ -1324,7 +1329,7 @@ const AskShotLanding: React.FC = () => {
                       ))}
                     </div>
                     <p className="text-muted-foreground mb-8 text-lg leading-relaxed italic">
-                      "{testimonial.content}"
+                      &quot;{testimonial.content}&quot;
                     </p>
                     <div className="flex items-center">
                       <Avatar className="h-12 w-12 mr-4 ring-2 ring-purple-500/20">
@@ -1517,69 +1522,132 @@ const AskShotLanding: React.FC = () => {
                 about any visual content.
               </p>
               <div className="flex space-x-2">
-                {[Twitter, Github, Linkedin].map((Icon, index) => (
-                  <motion.div
-                    key={index}
-                    whileHover={{ scale: 1.1, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
+                <motion.div
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <a
+                    href="https://x.com/coderxyz14"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <Button
                       variant="ghost"
                       size="sm"
                       className="hover:bg-purple-500/10 hover:text-purple-400"
                     >
-                      <Icon className="h-5 w-5" />
+                      <Twitter className="h-5 w-5" />
                     </Button>
-                  </motion.div>
-                ))}
+                  </a>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <a
+                    href="https://github.com/CoderXYZ14/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hover:bg-purple-500/10 hover:text-purple-400"
+                    >
+                      <Github className="h-5 w-5" />
+                    </Button>
+                  </a>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <a
+                    href="https://www.linkedin.com/in/shahwaiz-islam/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hover:bg-purple-500/10 hover:text-purple-400"
+                    >
+                      <Linkedin className="h-5 w-5" />
+                    </Button>
+                  </a>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <a href="mailto:shahwaizislam1404@gmail.com">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hover:bg-purple-500/10 hover:text-purple-400"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-5 w-5"
+                      >
+                        <rect width="20" height="16" x="2" y="4" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                      </svg>
+                    </Button>
+                  </a>
+                </motion.div>
               </div>
             </div>
 
             <div>
               <h3 className="font-semibold mb-6 text-lg">Product</h3>
               <ul className="space-y-3 text-muted-foreground">
-                {["Features", "Pricing", "Chrome Store", "Changelog"].map(
-                  (item, index) => (
-                    <motion.li
-                      key={item}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      viewport={{ once: true }}
+                {["Features", "Pricing", "Chrome Store"].map((item, index) => (
+                  <motion.li
+                    key={item}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <a
+                      href="#"
+                      className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
                     >
-                      <a
-                        href="#"
-                        className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
-                      >
-                        {item}
-                      </a>
-                    </motion.li>
-                  )
-                )}
+                      {item}
+                    </a>
+                  </motion.li>
+                ))}
               </ul>
             </div>
 
             <div>
               <h3 className="font-semibold mb-6 text-lg">Company</h3>
               <ul className="space-y-3 text-muted-foreground">
-                {["About", "Blog", "Privacy", "Terms", "Contact"].map(
-                  (item, index) => (
-                    <motion.li
-                      key={item}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      viewport={{ once: true }}
+                {["About", "Privacy", "Terms", "Contact"].map((item, index) => (
+                  <motion.li
+                    key={item}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <a
+                      href="#"
+                      className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
                     >
-                      <a
-                        href="#"
-                        className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
-                      >
-                        {item}
-                      </a>
-                    </motion.li>
-                  )
-                )}
+                      {item}
+                    </a>
+                  </motion.li>
+                ))}
               </ul>
             </div>
           </div>
@@ -1601,6 +1669,15 @@ const AskShotLanding: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
+              <Link
+                href="https://coff.ee/coderxyz14"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 rounded-md bg-[#FFDD00] text-black font-medium hover:bg-[#FFDD00]/90 transition-all mr-4"
+              >
+                <Coffee className="h-4 w-4 mr-2" />
+                <span>Buy me a coffee</span>
+              </Link>
               <Badge
                 variant="outline"
                 className="flex items-center space-x-2 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border-purple-500/20 hover:border-purple-500/40 transition-all"

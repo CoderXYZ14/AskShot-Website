@@ -5,10 +5,11 @@ import SignInClientPage from "./SignInClientPage";
 export default async function SignIn({
   searchParams,
 }: {
-  searchParams: { from?: string };
+  searchParams: Promise<{ from?: string | undefined }>;
 }) {
   const session = await getServerSession();
-  const fromExtension = searchParams?.from === "extension";
+  const params = await searchParams;
+  const fromExtension = params?.from === "extension";
 
   if (session) {
     if (fromExtension) {

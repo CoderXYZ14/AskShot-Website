@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
@@ -12,16 +12,16 @@ export async function GET(request: NextRequest) {
     }
 
     await dbConnect();
-    
+
     const user = await UserModel.findOne({ email: session.user.email });
-    
+
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json({
       freeTrialsLeft: user.freeTrialsLeft,
-      isExpired: user.freeTrialsLeft <= 0
+      isExpired: user.freeTrialsLeft <= 0,
     });
   } catch (error) {
     console.error("GetUserCredits | Error:", error);
