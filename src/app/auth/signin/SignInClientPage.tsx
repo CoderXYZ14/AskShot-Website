@@ -40,9 +40,9 @@ const AnimatedGrid = () => {
   );
 };
 
-export default function SignInClientPage() {
+export default function SignInClientPage({ fromExtension }: { fromExtension?: boolean }) {
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/auth/success" });
+    signIn("google", { callbackUrl: fromExtension ? "/auth/success" : "/" });
   };
 
   return (
