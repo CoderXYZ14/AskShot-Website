@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useInView } from "motion/react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useInView,
+  AnimatePresence,
+} from "motion/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -52,6 +58,7 @@ import {
 import Link from "next/link";
 import Script from "next/script";
 import axios from "axios";
+import { signOut } from "next-auth/react";
 
 interface PricingPlan {
   name: string;
@@ -132,11 +139,25 @@ const AskShotLanding: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    if (!showDropdown) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".askshot-avatar-dropdown")) setShowDropdown(false);
+    };
+    window.addEventListener("mousedown", handleClick);
+    return () => window.removeEventListener("mousedown", handleClick);
+  }, [showDropdown]);
+
+  useEffect(() => {
+    setShowDropdown(false);
+  }, [router]);
 
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  // Add these to your component's state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [cashfreeLoaded, setCashfreeLoaded] = useState(false);
@@ -477,18 +498,80 @@ const AskShotLanding: React.FC = () => {
                 <Switch checked={isDark} onCheckedChange={setIsDark} />
                 <Moon className="h-4 w-4" />
               </div>
-              <Link href="/auth/signin">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-lg shadow-purple-500/25">
-                    Sign In
-                  </Button>
-                </motion.div>
-              </Link>
+              <AnimatePresence mode="wait" initial={false}>
+                {session ? (
+                  <motion.div
+                    key="avatar"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.18 }}
+                    className="relative"
+                  >
+                    <motion.button
+                      className="focus:outline-none"
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowDropdown((v) => !v)}
+                      style={{ borderRadius: "9999px" }}
+                    >
+                      <Avatar className="w-9 h-9 ring-2 ring-purple-400">
+                        <AvatarImage
+                          src={session.user?.image || undefined}
+                          alt={session.user?.name || "avatar"}
+                        />
+                        <AvatarFallback>
+                          {session.user?.name?.[0] || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </motion.button>
+                    {showDropdown && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.18 }}
+                        className="askshot-avatar-dropdown absolute right-0 mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-lg ring-1 ring-black/10 z-50"
+                      >
+                        <div className="flex flex-col items-stretch py-2">
+                          <span className="px-4 py-2 text-xs text-muted-foreground truncate">
+                            {session.user?.email}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            className="justify-start px-4 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-gray-800 rounded-lg"
+                            onClick={async () => {
+                              await signOut({ redirect: false });
+                              setShowDropdown(false);
+                            }}
+                          >
+                            Logout
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="signin"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.18 }}
+                  >
+                    <Link href="/auth/signin">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-lg shadow-purple-500/25">
+                          Sign In
+                        </Button>
+                      </motion.div>
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-
             <button
               className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -524,7 +607,45 @@ const AskShotLanding: React.FC = () => {
                 <Switch checked={isDark} onCheckedChange={setIsDark} />
                 <Moon className="h-4 w-4" />
               </div>
-              <Button className="w-full">Try Extension</Button>
+              <AnimatePresence mode="wait" initial={false}>
+                {session ? (
+                  <motion.div
+                    key="mobile-logout"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.18 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="w-full text-red-500 hover:bg-red-50 dark:hover:bg-gray-800 rounded-lg"
+                      onClick={async () => {
+                        await signOut({ redirect: false });
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="mobile-signin"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.18 }}
+                  >
+                    <Link
+                      href="/auth/signin"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Button className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-lg shadow-purple-500/25">
+                        Sign In
+                      </Button>
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}
@@ -832,10 +953,11 @@ const AskShotLanding: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               viewport={{ once: true }}
             >
-              See how AskShot can transform your workflow with a personalized demo
+              See how AskShot can transform your workflow with a personalized
+              demo
             </motion.p>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -845,7 +967,9 @@ const AskShotLanding: React.FC = () => {
           >
             <div className="flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="flex-1">
-                <h3 className="text-2xl font-bold mb-4">Schedule Your Free Demo</h3>
+                <h3 className="text-2xl font-bold mb-4">
+                  Schedule Your Free Demo
+                </h3>
                 <ul className="space-y-3">
                   <li className="flex items-center gap-2">
                     <Check className="h-5 w-5 text-green-500" />
@@ -877,7 +1001,7 @@ const AskShotLanding: React.FC = () => {
           </motion.div>
         </div>
       </section>
-      
+
       {/* Demo Section */}
       <section className="py-32 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/20 to-transparent" />
@@ -1469,7 +1593,7 @@ const AskShotLanding: React.FC = () => {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              © 2024 AskShot. All rights reserved.
+              © 2025 AskShot. All rights reserved.
             </motion.p>
             <motion.div
               className="flex items-center space-x-4 mt-4 sm:mt-0"
