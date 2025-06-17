@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "AskShot — Screenshot & Ask AI Instantly",
+    title: "AskShot - Screenshot & Ask AI Instantly",
     description:
       "Capture any part of a webpage and chat with AI about it. AskShot makes visual Q&A effortless.",
     images: ["/og-cover.png"],
