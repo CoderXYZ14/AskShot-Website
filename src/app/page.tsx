@@ -1632,22 +1632,71 @@ const AskShotLanding: React.FC = () => {
             <div>
               <h3 className="font-semibold mb-6 text-lg">Company</h3>
               <ul className="space-y-3 text-muted-foreground">
-                {["About", "Privacy", "Terms", "Contact"].map((item, index) => (
-                  <motion.li
-                    key={item}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    viewport={{ once: true }}
+                <motion.li
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0 * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <a
+                    href="#"
+                    className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
                   >
-                    <a
-                      href="#"
-                      className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
-                    >
-                      {item}
-                    </a>
-                  </motion.li>
-                ))}
+                    About
+                  </a>
+                </motion.li>
+                <motion.li
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1 * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link
+                    href="/privacy"
+                    className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
+                  >
+                    Privacy
+                  </Link>
+                </motion.li>
+                <motion.li
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 2 * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link
+                    href="/service"
+                    className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
+                  >
+                    Terms
+                  </Link>
+                </motion.li>
+                <motion.li
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 3 * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link
+                    href="/refund-terms"
+                    className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
+                  >
+                    Refund
+                  </Link>
+                </motion.li>
+                <motion.li
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 4 * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <a
+                    href="mailto:shahwaizislam1404@gmail.com"
+                    className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
+                  >
+                    Contact
+                  </a>
+                </motion.li>
               </ul>
             </div>
           </div>
