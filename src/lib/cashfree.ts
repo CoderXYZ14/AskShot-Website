@@ -42,39 +42,47 @@ export interface CashfreeOrderResponse {
 
 const getAuthHeaders = () => {
   // Use both NEXT_PUBLIC_ and regular env vars to support both client and server components
-  const appId = process.env.CASHFREE_APP_ID || process.env.NEXT_PUBLIC_CASHFREE_APP_ID;
-  const secretKey = process.env.CASHFREE_SECRET_KEY || process.env.NEXT_PUBLIC_CASHFREE_SECRET_KEY;
-  
+  const appId = process.env.CASHFREE_APP_ID;
+  const secretKey = process.env.CASHFREE_SECRET_KEY;
+
   if (!appId || !secretKey) {
-    console.error("Cashfree credentials missing - APP_ID:", !!appId, "SECRET_KEY:", !!secretKey);
+    console.error(
+      "Cashfree credentials missing - APP_ID:",
+      !!appId,
+      "SECRET_KEY:",
+      !!secretKey
+    );
   }
-  
+
   return {
     "Content-Type": "application/json",
-    "x-client-id": appId || '',
-    "x-client-secret": secretKey || '',
-    "x-api-version": "2022-09-01"
+    "x-client-id": appId || "",
+    "x-client-secret": secretKey || "",
+    "x-api-version": "2022-09-01",
   };
 };
 
-export async function createCashfreeOrder(orderData: CashfreeOrderData): Promise<CashfreeOrderResponse> {
-  const apiUrl = process.env.CASHFREE_API_URL || process.env.NEXT_PUBLIC_CASHFREE_API_URL || "https://sandbox.cashfree.com/pg";
+export async function createCashfreeOrder(
+  orderData: CashfreeOrderData
+): Promise<CashfreeOrderResponse> {
+  const apiUrl =
+    process.env.CASHFREE_API_URL ||
+    process.env.NEXT_PUBLIC_CASHFREE_API_URL ||
+    "https://sandbox.cashfree.com/pg";
   console.log("Using API URL:", apiUrl);
-  
+
   console.log("Creating order with Cashfree");
   console.log("API URL:", apiUrl);
   console.log("Order data:", JSON.stringify(orderData));
-  
+
   try {
-    const response = await axios.post(
-      `${apiUrl}/orders`,
-      orderData,
-      { headers: getAuthHeaders() }
-    );
-    
+    const response = await axios.post(`${apiUrl}/orders`, orderData, {
+      headers: getAuthHeaders(),
+    });
+
     console.log("Order created successfully:", response.status);
     console.log("Cashfree response data:", JSON.stringify(response.data));
-    
+
     // If payment_link is missing, create one manually using the payment session ID
     const responseData = response.data;
     if (!responseData.payment_link) {
@@ -86,7 +94,7 @@ export async function createCashfreeOrder(orderData: CashfreeOrderData): Promise
         console.error("No payment_session_id found in response");
       }
     }
-    
+
     return responseData;
   } catch (error: unknown) {
     const err = error as Error & { response?: { data?: unknown } };
@@ -96,18 +104,23 @@ export async function createCashfreeOrder(orderData: CashfreeOrderData): Promise
 }
 
 export async function verifyPayment(orderId: string) {
-  const apiUrl = process.env.CASHFREE_API_URL || process.env.NEXT_PUBLIC_CASHFREE_API_URL || "https://sandbox.cashfree.com/pg";
-  
+  const apiUrl =
+    process.env.CASHFREE_API_URL ||
+    process.env.NEXT_PUBLIC_CASHFREE_API_URL ||
+    "https://sandbox.cashfree.com/pg";
+
   try {
-    const response = await axios.get(
-      `${apiUrl}/orders/${orderId}/payments`,
-      { headers: getAuthHeaders() }
-    );
-    
+    const response = await axios.get(`${apiUrl}/orders/${orderId}/payments`, {
+      headers: getAuthHeaders(),
+    });
+
     return response.data;
   } catch (error: unknown) {
     const err = error as Error & { response?: { data?: unknown } };
-    console.error("Error verifying payment:", err.response?.data || err.message);
+    console.error(
+      "Error verifying payment:",
+      err.response?.data || err.message
+    );
     throw err;
   }
 }
