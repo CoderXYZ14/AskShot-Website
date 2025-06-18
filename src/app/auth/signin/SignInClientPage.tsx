@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react";
 import { Sparkles } from "lucide-react";
 import { motion } from "motion/react";
+import Link from "next/link";
 
 // Floating particles component
 const FloatingParticles = () => {
@@ -178,8 +179,7 @@ export default function SignInClientPage({ fromExtension }: { fromExtension?: bo
                 className="text-sm text-muted-foreground text-center mt-4"
               >
                 <p>
-                  By signing in, you agree to our Terms of Service and Privacy
-                  Policy
+                  By signing in, you agree to our Terms of Service and <Link href="/privacy" className="text-blue-500 hover:underline">Privacy Policy</Link>
                 </p>
               </motion.div>
             </div>
