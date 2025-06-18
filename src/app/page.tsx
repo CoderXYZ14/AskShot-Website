@@ -190,7 +190,7 @@ const AskShotLanding: React.FC = () => {
     },
     {
       name: "Pro",
-      price: isYearly ? "₹1899" : "₹199",
+      price: isYearly ? "₹6899" : "₹679",
       period: isYearly ? "year" : "month",
       description: "For power users and professionals",
       features: [
@@ -1128,7 +1128,7 @@ const AskShotLanding: React.FC = () => {
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 >
                   <Badge className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white">
-                    Save 20.5%%
+                    Save 15%
                   </Badge>
                 </motion.div>
               )}

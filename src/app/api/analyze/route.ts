@@ -86,11 +86,7 @@ export async function POST(request: NextRequest) {
       } as TextBlockParam,
     ];
 
-    const response = await anthropicClient.messages.create({
-      model: "claude-3-sonnet-20240229",
-      max_tokens: 1024,
-      messages: [{ role: "user", content }],
-    });
+    const response = await callAnthropicWithRetry(content);
 
     const answer = (response.content[0] as TextBlockParam).text;
 
@@ -144,9 +140,56 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("AnthropicAnalyse | Error:", error);
+
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "status" in error &&
+      (error as { status: number }).status === 529
+    ) {
+      return NextResponse.json(
+        {
+          error: "Service is experiencing high demand",
+          message:
+            "Our AI service is currently experiencing high demand. Please try again later.",
+          isOverloaded: true,
+        },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to process image", details: String(error) },
       { status: 500 }
     );
   }
+}
+
+async function callAnthropicWithRetry(
+  content: ContentBlockParam[],
+  retries = 3,
+  delay = 1000
+) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await anthropicClient.messages.create({
+        model: "claude-3-sonnet-20240613", // ✅ update here
+        max_tokens: 1024,
+        messages: [{ role: "user", content }],
+      });
+    } catch (err) {
+      if (
+        i < retries - 1 &&
+        (err as { status: number }).status === 529 &&
+        (err as { error: { type: string } }).error.type === "overloaded_error"
+      ) {
+        console.warn(`Retrying (${i + 1})...`);
+        await new Promise((r) => setTimeout(r, delay * (i + 1))); // exponential backoff
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  throw new Error("Anthropic overloaded after retries");
 }
