@@ -1665,7 +1665,7 @@ const AskShotLanding: React.FC = () => {
                   viewport={{ once: true }}
                 >
                   <Link
-                    href="/service"
+                    href="/terms"
                     className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
                   >
                     Terms
