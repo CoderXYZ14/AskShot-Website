@@ -173,7 +173,7 @@ async function callAnthropicWithRetry(
   for (let i = 0; i < retries; i++) {
     try {
       return await anthropicClient.messages.create({
-        model: "claude-3-sonnet-20240613", // ✅ update here
+        model: "claude-3-sonnet-20240229",
         max_tokens: 1024,
         messages: [{ role: "user", content }],
       });
