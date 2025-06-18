@@ -67,8 +67,8 @@ export async function createCashfreeOrder(
 ): Promise<CashfreeOrderResponse> {
   const apiUrl =
     process.env.CASHFREE_API_URL ||
-    process.env.NEXT_PUBLIC_CASHFREE_API_URL ||
-    "https://sandbox.cashfree.com/pg";
+    process.env.CASHFREE_API_URL ||
+    "https://api.cashfree.com/pg";
   console.log("Using API URL:", apiUrl);
 
   console.log("Creating order with Cashfree");
@@ -89,7 +89,7 @@ export async function createCashfreeOrder(
       console.log("Payment link not found in response, creating one manually");
       if (responseData.payment_session_id) {
         // Use payment session ID to create the payment link
-        responseData.payment_link = `https://sandbox.cashfree.com/pg/view/checkout?session_id=${responseData.payment_session_id}`;
+        responseData.payment_link = `https://api.cashfree.com/pg/view/checkout?session_id=${responseData.payment_session_id}`;
       } else {
         console.error("No payment_session_id found in response");
       }
@@ -106,8 +106,8 @@ export async function createCashfreeOrder(
 export async function verifyPayment(orderId: string) {
   const apiUrl =
     process.env.CASHFREE_API_URL ||
-    process.env.NEXT_PUBLIC_CASHFREE_API_URL ||
-    "https://sandbox.cashfree.com/pg";
+    process.env.CASHFREE_API_URL ||
+    "https://api.cashfree.com/pg";
 
   try {
     const response = await axios.get(`${apiUrl}/orders/${orderId}/payments`, {

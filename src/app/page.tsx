@@ -237,7 +237,7 @@ const AskShotLanding: React.FC = () => {
 
       if (response.data.sessionId) {
         const cashfree = window.Cashfree({
-          mode: "sandbox",
+          mode: "production",
         });
 
         cashfree.checkout({

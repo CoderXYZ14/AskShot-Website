@@ -1,31 +1,33 @@
 import { NextResponse } from "next/server";
 import dbConnect from "../../../../lib/dbConnect";
 import UserModel, { User } from "../../../../models/User";
+import OrderModel from "../../../../models/Order";
 
 export async function POST(request: Request) {
   try {
     await dbConnect();
     const webhookData = await request.json();
 
-    // Log webhook data for debugging
-    console.log("Cashfree webhook received:", webhookData);
-
     // Extract payment information
-    const { orderId, txStatus } = webhookData;
+    const { orderId, txStatus, referenceId } = webhookData;
 
     if (txStatus === "SUCCESS") {
-      // Extract user ID from order ID (assuming format: order_timestamp_userId)
-      const orderIdParts = orderId.split("_");
-      if (orderIdParts.length >= 3) {
-        const userId = orderIdParts[2];
+      // Find the order in our database
+      const order = await OrderModel.findOne({ orderId }).exec();
+
+      if (order) {
+        // Update order status
+        order.status = "PAID";
+        order.paymentSessionId = referenceId;
+        await order.save();
 
         // Update user subscription
-        const user = (await UserModel.findById(userId).exec()) as User;
+        const user = (await UserModel.findById(order.userId).exec()) as User;
         if (user) {
           user.tier = "paid";
+          user.maxCredits = 20; // Increase maxCredits for premium users
+          user.freeTrialsLeft = user.maxCredits; // Reset free trials
           await user.save();
-
-          console.log(`User ${user.email} upgraded to paid tier via webhook`);
         }
       }
     }

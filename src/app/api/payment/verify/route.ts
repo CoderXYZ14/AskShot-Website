@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../../../lib/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../auth/[...nextauth]/options";
 import dbConnect from "../../../../lib/dbConnect";
 import UserModel, { User } from "../../../../models/User";
 import { verifyPayment } from "../../../../lib/cashfree";
