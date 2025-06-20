@@ -10,6 +10,7 @@ export interface User extends Document {
   maxCredits: number;
   nextTrialReset: Date;
   googleId?: string;
+  createdAt: Date;
 }
 
 const UserSchema: Schema<User> = new Schema(
