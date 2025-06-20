@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import Image from "next/image";
 
 interface UserProfile {
   id: string;
@@ -30,12 +31,9 @@ const ProfilePage = () => {
       try {
         const res = await axios.get("/api/user/profile");
         setProfile(res.data);
-      } catch (err: any) {
-        setError(
-          err.response?.status === 401
-            ? "Please sign in to view your profile"
-            : "Failed to load profile data"
-        );
+      } catch (err) {
+        setError("Failed to load profile data");
+        console.error("Failed to load profile data", err);
         setProfile(null);
       } finally {
         setLoading(false);
@@ -86,7 +84,7 @@ const ProfilePage = () => {
             <div className="relative">
               <Avatar className="w-20 h-20">
                 {profile?.image ? (
-                  <img
+                  <Image
                     src={profile.image}
                     alt={profile.name}
                     className="w-full h-full object-cover"

@@ -1,51 +1,50 @@
-"use client"
+"use client";
 
-import React from 'react'
-import { motion } from 'motion/react'
-import { CreditCard, Crown, Calendar, Download } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import axios from 'axios'
+import React from "react";
+import { motion } from "motion/react";
+import { CreditCard, Crown, Calendar, Download } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface Invoice {
-  id: string
-  date: Date
-  amount: number
-  status: 'paid' | 'pending' | 'overdue'
-  downloadUrl: string
+  id: string;
+  date: Date;
+  amount: number;
+  status: "paid" | "pending" | "overdue";
+  downloadUrl: string;
 }
 
 const mockInvoices: Invoice[] = [
   {
-    id: 'INV-2024-001',
-    date: new Date('2024-01-01'),
+    id: "INV-2024-001",
+    date: new Date("2024-01-01"),
     amount: 9.99,
-    status: 'paid',
-    downloadUrl: '#'
+    status: "paid",
+    downloadUrl: "#",
   },
   {
-    id: 'INV-2023-012',
-    date: new Date('2023-12-01'),
+    id: "INV-2023-012",
+    date: new Date("2023-12-01"),
     amount: 9.99,
-    status: 'paid',
-    downloadUrl: '#'
+    status: "paid",
+    downloadUrl: "#",
   },
   {
-    id: 'INV-2023-011',
-    date: new Date('2023-11-01'),
+    id: "INV-2023-011",
+    date: new Date("2023-11-01"),
     amount: 9.99,
-    status: 'paid',
-    downloadUrl: '#'
-  }
-]
+    status: "paid",
+    downloadUrl: "#",
+  },
+];
 
 const BillingPage = () => {
   const contentVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 }
-  }
+    exit: { opacity: 0, y: -20 },
+  };
 
   return (
     <motion.div
@@ -56,8 +55,12 @@ const BillingPage = () => {
       className="space-y-8"
     >
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Billing & Invoices</h2>
-        <p className="text-muted-foreground">Manage your billing information and download past invoices</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          Billing & Invoices
+        </h2>
+        <p className="text-muted-foreground">
+          Manage your billing information and download past invoices
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -73,7 +76,9 @@ const BillingPage = () => {
                   <CreditCard className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <p className="text-foreground font-medium">•••• •••• •••• 4242</p>
+                  <p className="text-foreground font-medium">
+                    •••• •••• •••• 4242
+                  </p>
                   <p className="text-sm text-muted-foreground">Expires 12/26</p>
                 </div>
               </div>
@@ -103,7 +108,9 @@ const BillingPage = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Next Payment</span>
-              <span className="text-foreground font-semibold">Feb 15, 2024</span>
+              <span className="text-foreground font-semibold">
+                Feb 15, 2024
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Amount</span>
@@ -120,7 +127,10 @@ const BillingPage = () => {
         </h3>
         <div className="space-y-3">
           {mockInvoices.map((invoice) => (
-            <div key={invoice.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+            <div
+              key={invoice.id}
+              className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors"
+            >
               <div className="flex items-center space-x-4">
                 <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
                   <Calendar className="w-5 h-5 text-white" />
@@ -133,13 +143,15 @@ const BillingPage = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <Badge className={`${
-                  invoice.status === 'paid' 
-                    ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                    : invoice.status === 'pending'
-                    ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
-                    : 'bg-red-500/20 text-red-400 border-red-500/30'
-                }`}>
+                <Badge
+                  className={`${
+                    invoice.status === "paid"
+                      ? "bg-green-500/20 text-green-400 border-green-500/30"
+                      : invoice.status === "pending"
+                      ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                      : "bg-red-500/20 text-red-400 border-red-500/30"
+                  }`}
+                >
                   {invoice.status}
                 </Badge>
                 <Button variant="outline" size="sm">
@@ -152,7 +164,7 @@ const BillingPage = () => {
         </div>
       </Card>
     </motion.div>
-  )
-}
+  );
+};
 
-export default BillingPage
+export default BillingPage;
