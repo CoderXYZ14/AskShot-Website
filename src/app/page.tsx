@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "motion/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -136,7 +137,19 @@ const AnimatedGrid: React.FC = () => {
 };
 
 const AskShotLanding: React.FC = () => {
+  const { theme, setTheme } = useTheme();
   const [isDark, setIsDark] = useState(true);
+
+  // Sync local state with theme system
+  useEffect(() => {
+    setIsDark(theme === "dark");
+  }, [theme]);
+
+  // Update theme when switch changes
+  const handleThemeChange = (checked: boolean) => {
+    setIsDark(checked);
+    setTheme(checked ? "dark" : "light");
+  };
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -494,7 +507,7 @@ const AskShotLanding: React.FC = () => {
               </motion.a>
               <div className="flex items-center space-x-2 bg-muted/50 rounded-full p-1 backdrop-blur-sm">
                 <Sun className="h-4 w-4" />
-                <Switch checked={isDark} onCheckedChange={setIsDark} />
+                <Switch checked={isDark} onCheckedChange={handleThemeChange} />
                 <Moon className="h-4 w-4" />
               </div>
               <AnimatePresence mode="wait" initial={false}>
@@ -603,7 +616,7 @@ const AskShotLanding: React.FC = () => {
               </a>
               <div className="flex items-center space-x-2">
                 <Sun className="h-4 w-4" />
-                <Switch checked={isDark} onCheckedChange={setIsDark} />
+                <Switch checked={isDark} onCheckedChange={handleThemeChange} />
                 <Moon className="h-4 w-4" />
               </div>
               <AnimatePresence mode="wait" initial={false}>

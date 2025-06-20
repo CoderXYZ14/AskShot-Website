@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Moon, Sun } from "lucide-react";
 
@@ -11,7 +12,19 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { theme, setTheme } = useTheme();
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+
+  // Sync local state with theme
+  useEffect(() => {
+    setIsDarkMode(theme === "dark");
+  }, [theme]);
+
+  // Update theme when switch changes
+  const handleThemeChange = (checked: boolean) => {
+    setIsDarkMode(checked);
+    setTheme(checked ? "dark" : "light");
+  };
 
   return (
     <div
@@ -30,7 +43,7 @@ export default function DashboardLayout({
                   <Sun className="w-4 h-4 text-muted-foreground" />
                   <Switch
                     checked={isDarkMode}
-                    onCheckedChange={setIsDarkMode}
+                    onCheckedChange={handleThemeChange}
                   />
                   <Moon className="w-4 h-4 text-muted-foreground" />
                 </div>
