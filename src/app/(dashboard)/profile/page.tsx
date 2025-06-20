@@ -87,6 +87,8 @@ const ProfilePage = () => {
                   <Image
                     src={profile.image}
                     alt={profile.name}
+                    width={80}
+                    height={80}
                     className="w-full h-full object-cover"
                   />
                 ) : (

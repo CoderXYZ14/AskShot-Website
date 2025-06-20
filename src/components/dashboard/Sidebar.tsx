@@ -1,52 +1,52 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react'
-import { motion } from 'motion/react'
-import { 
-  User, 
-  History, 
-  CreditCard, 
-  Menu, 
-  X, 
-  Eye, 
+import React, { useState } from "react";
+import { motion } from "motion/react";
+import {
+  User,
+  History,
+  Menu,
+  X,
+  Eye,
   LogOut,
   ExternalLink,
   ChevronRight,
-  Crown
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+  Crown,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 interface SidebarItem {
-  id: string
-  label: string
-  icon: React.ComponentType<{ className?: string }>
-  badge?: string
-  href: string
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
+  href: string;
 }
 
 const sidebarItems: SidebarItem[] = [
-  { id: 'profile', label: 'Profile', icon: User, href: '/profile' },
-  { id: 'history', label: 'History', icon: History, badge: '12', href: '/history' },
-  { id: 'plans', label: 'Plans', icon: Crown, href: '/plans' },
-  { id: 'billing', label: 'Billing', icon: CreditCard, href: '/billing' }
-]
+  { id: "profile", label: "Profile", icon: User, href: "/profile" },
+  { id: "history", label: "History", icon: History, href: "/history" },
+  { id: "plans", label: "Plans", icon: Crown, href: "/plans" },
+  // { id: "billing", label: "Billing", icon: CreditCard, href: "/billing" },
+];
 
 const Sidebar = () => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false)
-  const pathname = usePathname()
-  
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const pathname = usePathname();
+
   const sidebarVariants = {
     expanded: { width: 280 },
-    collapsed: { width: 80 }
-  }
+    collapsed: { width: 80 },
+  };
 
   return (
     <motion.div
       variants={sidebarVariants}
-      animate={sidebarCollapsed ? 'collapsed' : 'expanded'}
+      animate={sidebarCollapsed ? "collapsed" : "expanded"}
       className="fixed left-0 top-0 h-full bg-background/95 backdrop-blur-sm border-r border-border/50 z-40"
     >
       <div className="p-6">
@@ -71,13 +71,18 @@ const Sidebar = () => {
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             className="p-2"
           >
-            {sidebarCollapsed ? <Menu className="w-4 h-4" /> : <X className="w-4 h-4" />}
+            {sidebarCollapsed ? (
+              <Menu className="w-4 h-4" />
+            ) : (
+              <X className="w-4 h-4" />
+            )}
           </Button>
         </div>
 
         <nav className="space-y-2">
           {sidebarItems.map((item) => {
-            const isActive = pathname === `/${item.id}` || pathname.startsWith(`/${item.id}/`)
+            const isActive =
+              pathname === `/${item.id}` || pathname.startsWith(`/${item.id}/`);
             return (
               <Link href={item.href} key={item.id}>
                 <motion.div
@@ -85,8 +90,8 @@ const Sidebar = () => {
                   whileTap={{ scale: 0.98 }}
                   className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
                     isActive
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -103,7 +108,7 @@ const Sidebar = () => {
                   )}
                 </motion.div>
               </Link>
-            )
+            );
           })}
         </nav>
 
@@ -117,11 +122,11 @@ const Sidebar = () => {
               <ExternalLink className="w-4 h-4 mr-2" />
               Open Extension
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full text-red-400 border-red-500/30 hover:bg-red-500/10"
-              onClick={() => {
-                console.log('Logout clicked')
+              onClick={async () => {
+                await signOut({ redirect: true, callbackUrl: "/" });
               }}
             >
               <LogOut className="w-4 h-4 mr-2" />
@@ -131,7 +136,7 @@ const Sidebar = () => {
         )}
       </div>
     </motion.div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;
