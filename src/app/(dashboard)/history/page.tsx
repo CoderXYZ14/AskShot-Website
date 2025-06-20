@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Grid3X3,
@@ -28,10 +28,11 @@ interface Screenshot {
 interface Question {
   _id: string;
   question: string;
-  answer?: string;
+  answer?: string | null;
   screenshotId: string;
   userId: string;
   createdAt: string;
+  isLoading?: boolean;
 }
 
 interface ScreenshotWithQuestions extends Screenshot {
@@ -51,36 +52,52 @@ const HistoryPage = () => {
     null
   );
   const [deletingScreenshot, setDeletingScreenshot] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const questionsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchScreenshots();
   }, []);
 
+  useEffect(() => {
+    if (questionsContainerRef.current && selectedScreenshot?.questions.length) {
+      questionsContainerRef.current.scrollTop =
+        questionsContainerRef.current.scrollHeight;
+    }
+  }, [selectedScreenshot?.questions]);
+
   const fetchScreenshots = async () => {
     try {
       setLoading(true);
+      setError("");
+
       const res = await axios.get("/api/screenshots");
-      const screenshotsData = res.data.screenshots;
+      const screenshotsData = res.data.screenshots || [];
 
       const screenshotsWithQuestions = await Promise.all(
         screenshotsData.map(async (screenshot: Screenshot) => {
           const questionsRes = await axios.get(
             `/api/questions?screenshotId=${screenshot._id}`
           );
+          const sortedQuestions = (questionsRes.data.questions || []).sort(
+            (a: Question, b: Question) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+
           return {
             ...screenshot,
-            questions: questionsRes.data.questions || [],
-            questionsCount: questionsRes.data.questions?.length || 0,
+            questions: sortedQuestions,
+            questionsCount: sortedQuestions.length || 0,
           };
         })
       );
 
       setScreenshots(screenshotsWithQuestions);
-      setError("");
+      setLoading(false);
     } catch (err) {
       console.error("Error fetching screenshots:", err);
-      setError("Failed to load screenshots");
-    } finally {
+      setError("Failed to load screenshots. Please try again.");
       setLoading(false);
     }
   };
@@ -88,36 +105,90 @@ const HistoryPage = () => {
   const handleAskQuestion = async () => {
     if (!selectedScreenshot || !newQuestion.trim()) return;
 
+    const questionText = newQuestion.trim();
+    setNewQuestion("");
+    setIsAnalyzing(true);
+
+    // Create temporary question object
+    const tempQuestion: Question = {
+      _id: `temp-${Date.now()}`,
+      question: questionText,
+      answer: null,
+      screenshotId: selectedScreenshot._id,
+      userId: "",
+      createdAt: new Date().toISOString(),
+      isLoading: true,
+    };
+
+    // Add question to UI immediately
+    const updatedQuestions = [...selectedScreenshot.questions, tempQuestion];
+    const updatedScreenshot = {
+      ...selectedScreenshot,
+      questions: updatedQuestions,
+      questionsCount: updatedQuestions.length,
+    };
+
+    setSelectedScreenshot(updatedScreenshot);
+
+    // Update screenshots array
+    setScreenshots((prev) =>
+      prev.map((s) =>
+        s._id === selectedScreenshot._id ? updatedScreenshot : s
+      )
+    );
+
     try {
-      await axios.post("/api/questions", {
-        question: newQuestion,
+      // Call analyze API
+      const analyzeRes = await axios.post("/api/analyze", {
+        question: questionText,
+        screenshot: selectedScreenshot.imageUrl,
         screenshotId: selectedScreenshot._id,
       });
 
-      const questionsRes = await axios.get(
-        `/api/questions?screenshotId=${selectedScreenshot._id}`
-      );
-      setSelectedScreenshot({
-        ...selectedScreenshot,
-        questions: questionsRes.data.questions || [],
-        questionsCount: questionsRes.data.questions?.length || 0,
-      });
+      const aiAnswer = analyzeRes.data.answer || "No answer available";
 
-      setScreenshots(
-        screenshots.map((s) =>
-          s._id === selectedScreenshot._id
-            ? {
-                ...s,
-                questions: questionsRes.data.questions || [],
-                questionsCount: questionsRes.data.questions?.length || 0,
-              }
-            : s
+      // Update the temporary question with the answer
+      const finalQuestions = updatedQuestions.map((q) =>
+        q._id === tempQuestion._id
+          ? { ...q, answer: aiAnswer, isLoading: false }
+          : q
+      );
+
+      const finalScreenshot = {
+        ...selectedScreenshot,
+        questions: finalQuestions,
+        questionsCount: finalQuestions.length,
+      };
+
+      setSelectedScreenshot(finalScreenshot);
+
+      // Update screenshots array
+      setScreenshots((prev) =>
+        prev.map((s) =>
+          s._id === selectedScreenshot._id ? finalScreenshot : s
         )
       );
-
-      setNewQuestion("");
     } catch (err) {
       console.error("Error asking question:", err);
+
+      // Remove the temporary question on error
+      const questionsWithoutTemp = updatedQuestions.filter(
+        (q) => q._id !== tempQuestion._id
+      );
+      const errorScreenshot = {
+        ...selectedScreenshot,
+        questions: questionsWithoutTemp,
+        questionsCount: questionsWithoutTemp.length,
+      };
+
+      setSelectedScreenshot(errorScreenshot);
+      setScreenshots((prev) =>
+        prev.map((s) =>
+          s._id === selectedScreenshot._id ? errorScreenshot : s
+        )
+      );
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -128,24 +199,20 @@ const HistoryPage = () => {
       setDeletingQuestionId(questionId);
       await axios.delete(`/api/questions/${questionId}`);
 
-      const questionsRes = await axios.get(
-        `/api/questions?screenshotId=${selectedScreenshot._id}`
+      // Remove question from local state
+      const updatedQuestions = selectedScreenshot.questions.filter(
+        (q) => q._id !== questionId
       );
-      setSelectedScreenshot({
+      const updatedScreenshot = {
         ...selectedScreenshot,
-        questions: questionsRes.data.questions || [],
-        questionsCount: questionsRes.data.questions?.length || 0,
-      });
+        questions: updatedQuestions,
+        questionsCount: updatedQuestions.length,
+      };
 
-      setScreenshots(
-        screenshots.map((s) =>
-          s._id === selectedScreenshot._id
-            ? {
-                ...s,
-                questions: questionsRes.data.questions || [],
-                questionsCount: questionsRes.data.questions?.length || 0,
-              }
-            : s
+      setSelectedScreenshot(updatedScreenshot);
+      setScreenshots((prev) =>
+        prev.map((s) =>
+          s._id === selectedScreenshot._id ? updatedScreenshot : s
         )
       );
     } catch (err) {
@@ -164,7 +231,7 @@ const HistoryPage = () => {
         setSelectedScreenshot(null);
       }
 
-      setScreenshots(screenshots.filter((s) => s._id !== screenshotId));
+      setScreenshots((prev) => prev.filter((s) => s._id !== screenshotId));
     } catch (err) {
       console.error("Error deleting screenshot:", err);
     } finally {
@@ -186,6 +253,7 @@ const HistoryPage = () => {
       exit="exit"
       className="space-y-6"
     >
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">
           Screenshot History
@@ -210,6 +278,7 @@ const HistoryPage = () => {
         </div>
       </div>
 
+      {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -227,42 +296,78 @@ const HistoryPage = () => {
           className={
             historyView === "grid"
               ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              : "space-y-4"
+              : "space-y-3"
           }
         >
           {screenshots.map((screenshot) => (
             <motion.div
               key={screenshot._id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => setSelectedScreenshot(screenshot)}
               className="cursor-pointer"
             >
-              <Card className="bg-background/80 backdrop-blur-sm border-border/50 overflow-hidden hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300">
-                <div className="aspect-video relative overflow-hidden">
+              <Card
+                className={`bg-background/80 backdrop-blur-sm border-border/50 overflow-hidden hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 ${
+                  historyView === "list" ? "flex" : ""
+                }`}
+              >
+                <div
+                  className={`${
+                    historyView === "list" ? "w-48 h-32" : "aspect-video"
+                  } relative overflow-hidden`}
+                >
                   <Image
                     src={screenshot.imageUrl}
                     alt={`Screenshot ${new Date(
                       screenshot.createdAt
                     ).toLocaleDateString()}`}
+                    width={historyView === "list" ? 200 : 400}
+                    height={historyView === "list" ? 150 : 300}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <p className="text-white/70 text-xs">
-                      {new Date(screenshot.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <Badge className="absolute top-3 right-3 bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
-                    {screenshot.questionsCount} questions
-                  </Badge>
+                  {historyView === "grid" && (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute bottom-3 left-3 right-3">
+                        <p className="text-white/70 text-xs">
+                          {new Date(screenshot.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Badge className="absolute top-3 right-3 bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
+                        {screenshot.questionsCount} questions
+                      </Badge>
+                    </>
+                  )}
                 </div>
+                {historyView === "list" && (
+                  <div className="flex-1 p-3 flex flex-col justify-between">
+                    <div>
+                      <p className="text-sm font-medium">
+                        {new Date(screenshot.createdAt).toLocaleDateString()},{" "}
+                        {new Date(screenshot.createdAt).toLocaleTimeString()}
+                      </p>
+                      {screenshot.questionsCount > 0 && (
+                        <p className="text-xs text-blue-500 mt-1">
+                          {screenshot.questionsCount} question
+                          {screenshot.questionsCount !== 1 ? "s" : ""}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex justify-end">
+                      <Badge variant="outline" className="text-xs">
+                        View details
+                      </Badge>
+                    </div>
+                  </div>
+                )}
               </Card>
             </motion.div>
           ))}
         </div>
       )}
 
+      {/* Modal */}
       <AnimatePresence>
         {selectedScreenshot && (
           <motion.div
@@ -279,6 +384,7 @@ const HistoryPage = () => {
               className="bg-background border border-border rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Modal Header */}
               <div className="p-6 border-b border-border flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-foreground">
                   Screenshot from{" "}
@@ -319,16 +425,23 @@ const HistoryPage = () => {
                   </Button>
                 </div>
               </div>
+
+              {/* Modal Content */}
               <div className="grid grid-cols-1 lg:grid-cols-2 h-[70vh]">
+                {/* Image Section */}
                 <div className="p-6">
                   <Image
                     src={selectedScreenshot.imageUrl}
                     alt={`Screenshot from ${new Date(
                       selectedScreenshot.createdAt
                     ).toLocaleDateString()}`}
+                    width={800}
+                    height={600}
                     className="w-full h-full object-contain rounded-lg"
                   />
                 </div>
+
+                {/* Chat Section */}
                 <div className="border-l border-border p-6 flex flex-col">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-lg font-semibold text-foreground flex items-center">
@@ -336,81 +449,100 @@ const HistoryPage = () => {
                       Questions ({selectedScreenshot.questions.length})
                     </h4>
                   </div>
-                  <div className="flex-1 space-y-3 overflow-y-auto mb-4">
+
+                  {/* Questions Container */}
+                  <div
+                    ref={questionsContainerRef}
+                    className="flex-1 space-y-3 overflow-y-auto mb-4 max-h-[50vh] pr-2"
+                    style={{ scrollBehavior: "smooth" }}
+                  >
                     {selectedScreenshot.questions.length === 0 ? (
                       <div className="text-center py-6 text-muted-foreground">
                         No questions yet. Ask your first question below.
                       </div>
                     ) : (
                       selectedScreenshot.questions.map((question) => (
-                        <div key={question._id} className="group relative">
-                          <div className="rounded-lg p-3 bg-muted/50 ml-8">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-foreground">
-                                  {question.question}
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {new Date(
-                                    question.createdAt
-                                  ).toLocaleTimeString()}
-                                </p>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-auto text-red-400 hover:bg-red-500/10"
-                                onClick={() =>
-                                  handleDeleteQuestion(question._id)
-                                }
-                                disabled={deletingQuestionId === question._id}
-                              >
-                                {deletingQuestionId === question._id ? (
-                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                ) : (
-                                  <Trash2 className="w-3 h-3" />
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                          {question.answer && (
-                            <div className="rounded-lg p-3 bg-blue-500/10 border border-blue-500/20 mr-8 mt-2">
+                        <div key={question._id} className="space-y-2">
+                          {/* Question */}
+                          <div className="group relative">
+                            <div className="rounded-lg p-3 bg-muted/50 ml-8">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
-                                  <p className="text-sm text-foreground">
-                                    {question.answer}
+                                  <p className="text-sm font-medium text-foreground">
+                                    {question.question}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {new Date(
+                                      question.createdAt
+                                    ).toLocaleTimeString()}
                                   </p>
                                 </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-auto text-red-400 hover:bg-red-500/10"
+                                  onClick={() =>
+                                    handleDeleteQuestion(question._id)
+                                  }
+                                  disabled={deletingQuestionId === question._id}
+                                >
+                                  {deletingQuestionId === question._id ? (
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="w-3 h-3" />
+                                  )}
+                                </Button>
                               </div>
                             </div>
-                          )}
+                          </div>
+
+                          {/* Answer */}
+                          {question.isLoading ? (
+                            <div className="rounded-lg p-3 bg-blue-500/10 border border-blue-500/20 mr-8 flex items-center justify-center">
+                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                              <span className="text-sm text-muted-foreground">
+                                Analyzing...
+                              </span>
+                            </div>
+                          ) : question.answer ? (
+                            <div className="rounded-lg p-3 bg-blue-500/10 border border-blue-500/20 mr-8">
+                              <p className="text-sm text-foreground">
+                                {question.answer}
+                              </p>
+                            </div>
+                          ) : null}
                         </div>
                       ))
                     )}
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="Ask a question about this screenshot..."
-                        value={newQuestion}
-                        onChange={(e) => setNewQuestion(e.target.value)}
-                        className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && newQuestion.trim()) {
-                            handleAskQuestion();
-                          }
-                        }}
-                      />
-                      <Button
-                        size="sm"
-                        className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                        onClick={handleAskQuestion}
-                        disabled={!newQuestion.trim()}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
+
+                  {/* Input Section */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Ask a question about this screenshot..."
+                      value={newQuestion}
+                      onChange={(e) => setNewQuestion(e.target.value)}
+                      className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={isAnalyzing}
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === "Enter" &&
+                          newQuestion.trim() &&
+                          !isAnalyzing
+                        ) {
+                          handleAskQuestion();
+                        }
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                      onClick={handleAskQuestion}
+                      disabled={!newQuestion.trim() || isAnalyzing}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
               </div>

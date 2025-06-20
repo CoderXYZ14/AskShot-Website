@@ -25,14 +25,22 @@ export async function GET() {
     // Get user's current plan
     const userPlanTier = user.tier === "paid" ? "pro" : "free";
 
+    // Define plan limit types
+    type ScreenshotLimit = number | "unlimited";
+
+    interface PlanLimits {
+      screenshotsPerDay: ScreenshotLimit;
+      aiChatsPerDay: number;
+    }
+
     // Define limits based on plan
-    const limits = {
+    const limits: Record<string, PlanLimits> = {
       free: {
         screenshotsPerDay: 20,
         aiChatsPerDay: 5,
       },
       pro: {
-        screenshotsPerDay: 100,
+        screenshotsPerDay: "unlimited",
         aiChatsPerDay: 20,
       },
     };
@@ -69,10 +77,14 @@ export async function GET() {
     const planLimits = limits[userPlanTier];
 
     // Calculate percentages for progress bars
-    const screenshotPercentage = Math.min(
-      100,
-      (screenshotCountToday / planLimits.screenshotsPerDay) * 100
-    );
+    const screenshotPercentage =
+      planLimits.screenshotsPerDay === "unlimited"
+        ? 0 // For unlimited plan, always show 0% usage
+        : Math.min(
+            100,
+            (screenshotCountToday / planLimits.screenshotsPerDay) * 100
+          );
+
     const aiChatsPercentage = Math.min(
       100,
       (questionCountToday / planLimits.aiChatsPerDay) * 100
@@ -85,19 +97,19 @@ export async function GET() {
           daily: {
             used: screenshotCountToday,
             total: planLimits.screenshotsPerDay,
-            percentage: screenshotPercentage
+            percentage: screenshotPercentage,
           },
-          total: totalScreenshotCount
+          total: totalScreenshotCount,
         },
         aiChats: {
           daily: {
             used: questionCountToday,
             total: planLimits.aiChatsPerDay,
-            percentage: aiChatsPercentage
+            percentage: aiChatsPercentage,
           },
-          total: totalQuestionCount
-        }
-      }
+          total: totalQuestionCount,
+        },
+      },
     });
   } catch (error) {
     console.error("Error in plans API:", error);

@@ -15,7 +15,7 @@ export default async function SignIn({
     if (fromExtension) {
       redirect("/auth/success");
     } else {
-      redirect("/");
+      redirect("/profile");
     }
   }
 
