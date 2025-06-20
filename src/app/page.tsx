@@ -456,6 +456,14 @@ const AskShotLanding: React.FC = () => {
             </motion.div>
 
             <div className="hidden md:flex items-center space-x-8">
+              <Link href="/profile" passHref>
+                <motion.a
+                  className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
+                  whileHover={{ y: -2 }}
+                >
+                  Profile
+                </motion.a>
+              </Link>
               <motion.a
                 href="#features"
                 className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
