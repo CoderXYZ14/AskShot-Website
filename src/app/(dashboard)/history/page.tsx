@@ -17,6 +17,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import axios from "axios";
 import Image from "next/image";
+import { jsPDF } from "jspdf";
 
 interface Screenshot {
   _id: string;
@@ -55,7 +56,7 @@ const HistoryPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const questionsContainerRef = useRef<HTMLDivElement>(null);
-
+  const pdfRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     fetchScreenshots();
   }, []);
@@ -239,6 +240,111 @@ const HistoryPage = () => {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    if (!selectedScreenshot) return;
+
+    try {
+      setIsAnalyzing(true);
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 15;
+
+      // Title and metadata
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(18);
+      pdf.text("Screenshot Analysis Report", pageWidth / 2, 20, {
+        align: "center",
+      });
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(12);
+      pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, 35);
+      pdf.text(
+        `Original: ${new Date(selectedScreenshot.createdAt).toLocaleString()}`,
+        margin,
+        45
+      );
+
+      // Image section - SAFE APPROACH without Image()
+      let yPos = 55;
+      const imgWidth = pageWidth - 2 * margin;
+      const imgHeight = imgWidth * 0.5625; // 16:9 aspect ratio (good default)
+
+      try {
+        // Directly add base64 image with fixed aspect ratio
+        pdf.addImage({
+          imageData: selectedScreenshot.imageUrl,
+          x: margin,
+          y: yPos,
+          width: imgWidth,
+          height: imgHeight,
+          format: "JPEG",
+        });
+        yPos += imgHeight + 15;
+      } catch (e) {
+        console.error("Image embedding failed:", e);
+        pdf.text("[Screenshot not available]", margin, yPos);
+        yPos += 20;
+      }
+
+      // Questions section
+      pdf.setFontSize(16);
+      pdf.text("Questions & Answers", margin, yPos);
+      yPos += 10;
+
+      pdf.setFontSize(12);
+      selectedScreenshot.questions.forEach((q, i) => {
+        // Page management
+        if (yPos > pdf.internal.pageSize.getHeight() - 30) {
+          pdf.addPage();
+          yPos = 20;
+        }
+
+        // Question
+        pdf.setFont("helvetica", "bold");
+        const questionText = `Q${i + 1}: ${q.question}`;
+        const questionLines = pdf.splitTextToSize(
+          questionText,
+          pageWidth - 2 * margin
+        );
+        pdf.text(questionLines, margin, yPos);
+        yPos += questionLines.length * 6 + 2;
+
+        // Answer
+        pdf.setFont("helvetica", "normal");
+        const answerText = q.answer || "No answer provided";
+        const answerLines = pdf.splitTextToSize(
+          answerText,
+          pageWidth - 2 * margin - 5
+        );
+
+        if (
+          yPos + answerLines.length * 6 >
+          pdf.internal.pageSize.getHeight() - 20
+        ) {
+          pdf.addPage();
+          yPos = 20;
+        }
+
+        pdf.text(answerLines, margin + 5, yPos);
+        yPos += answerLines.length * 6 + 10;
+
+        // Separator
+        if (i < selectedScreenshot.questions.length - 1) {
+          pdf.setDrawColor(200, 200, 200);
+          pdf.line(margin, yPos, pageWidth - margin, yPos);
+          yPos += 5;
+        }
+      });
+
+      pdf.save(`screenshot-analysis-${selectedScreenshot._id}.pdf`);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const contentVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -391,9 +497,23 @@ const HistoryPage = () => {
                   {new Date(selectedScreenshot.createdAt).toLocaleDateString()}
                 </h3>
                 <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadPDF}
+                    disabled={isAnalyzing}
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 mr-2" />
+                        Download PDF
+                      </>
+                    )}
                   </Button>
                   <Button
                     variant="outline"
@@ -423,6 +543,120 @@ const HistoryPage = () => {
                   >
                     <X className="w-4 h-4" />
                   </Button>
+                </div>
+              </div>
+              <div
+                ref={pdfRef}
+                style={{
+                  position: "absolute",
+                  left: "-9999px",
+                  width: "794px", // A4 width in pixels (210mm)
+                  padding: "20px",
+                  backgroundColor: "white",
+                }}
+              >
+                <div style={{ marginBottom: "20px", textAlign: "center" }}>
+                  <h1
+                    style={{
+                      fontSize: "24px",
+                      fontWeight: "bold",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    Screenshot Analysis Report
+                  </h1>
+                  <p style={{ fontSize: "14px", color: "#666" }}>
+                    Generated on {new Date().toLocaleDateString()} at{" "}
+                    {new Date().toLocaleTimeString()}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      color: "#666",
+                      marginBottom: "20px",
+                    }}
+                  >
+                    Original screenshot taken on{" "}
+                    {new Date(
+                      selectedScreenshot.createdAt
+                    ).toLocaleDateString()}
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    marginBottom: "30px",
+                    border: "1px solid #eee",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Image
+                    src={selectedScreenshot.imageUrl}
+                    alt="Screenshot"
+                    style={{ width: "100%", display: "block" }}
+                  />
+                </div>
+
+                <div style={{ marginTop: "30px" }}>
+                  <h2
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: "bold",
+                      marginBottom: "15px",
+                      borderBottom: "1px solid #eee",
+                      paddingBottom: "5px",
+                    }}
+                  >
+                    Questions & Answers ({selectedScreenshot.questions.length})
+                  </h2>
+
+                  {selectedScreenshot.questions.map((question, index) => (
+                    <div
+                      key={question._id}
+                      style={{
+                        marginBottom: "20px",
+                        paddingBottom: "20px",
+                        borderBottom:
+                          index < selectedScreenshot.questions.length - 1
+                            ? "1px solid #f0f0f0"
+                            : "none",
+                      }}
+                    >
+                      <div style={{ marginBottom: "10px" }}>
+                        <p
+                          style={{
+                            fontWeight: "bold",
+                            color: "#333",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Q{index + 1}: {question.question}
+                        </p>
+                        <p style={{ fontSize: "12px", color: "#999" }}>
+                          Asked at{" "}
+                          {new Date(question.createdAt).toLocaleTimeString()}
+                        </p>
+                      </div>
+
+                      {question.answer ? (
+                        <div
+                          style={{
+                            backgroundColor: "#f8fafc",
+                            padding: "10px 15px",
+                            borderRadius: "6px",
+                            borderLeft: "3px solid #3b82f6",
+                          }}
+                        >
+                          <p style={{ color: "#333" }}>{question.answer}</p>
+                        </div>
+                      ) : (
+                        <p style={{ color: "#999", fontStyle: "italic" }}>
+                          No answer provided
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
 
