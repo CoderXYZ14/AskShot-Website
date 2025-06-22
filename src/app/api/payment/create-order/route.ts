@@ -9,7 +9,9 @@ import {
   CashfreeOrderData,
 } from "../../../../lib/cashfree";
 
-export async function POST() {
+export async function POST(request: Request) {
+  // Get the request body
+  const body = await request.json();
   try {
     await dbConnect();
     const session = await getServerSession(authOptions);
@@ -39,7 +41,7 @@ export async function POST() {
 
     const orderData = {
       order_id: orderId,
-      order_amount: 1,
+      order_amount: body.amount || 679, // Default to monthly price if not specified
       order_currency: "INR",
       customer_details: {
         customer_id: user._id?.toString(),
@@ -60,6 +62,8 @@ export async function POST() {
       amount: orderData.order_amount,
       currency: orderData.order_currency,
       status: "CREATED",
+      planType: body.planType || "Pro",
+      period: body.period || "monthly",
     });
 
     // Create order with payment gateway

@@ -169,8 +169,19 @@ const AskShotLanding: React.FC = () => {
     setShowDropdown(false);
   }, [router]);
 
+  // Check user subscription status when session is available
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      // Check if user has a paid subscription
+      if (session.user.tier === "paid") {
+        setUserTier("paid");
+      }
+    }
+  }, [session, status]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [userTier, setUserTier] = useState<"free" | "paid">("free");
   const [isYearly, setIsYearly] = useState(false);
 
   // Add this interface
@@ -235,7 +246,8 @@ const AskShotLanding: React.FC = () => {
   ];
 
   // Add this payment handler function
-  const handleUpgrade = async () => {
+  const handleUpgrade = async (event?: React.MouseEvent) => {
+    const planType = "Pro";
     if (status !== "authenticated") {
       router.push("/auth/signin");
       return;
@@ -245,8 +257,16 @@ const AskShotLanding: React.FC = () => {
       setLoading(true);
       setError("");
 
-      const response = await axios.post("/api/payment/create-order");
-      console.log("Payment API response:", response.data);
+      // Pass the selected pricing based on yearly or monthly plan
+      const amount = isYearly ? 6899 : 679;
+      const period = isYearly ? "yearly" : "monthly";
+
+      const response = await axios.post("/api/payment/create-order", {
+        planType,
+        amount,
+        period,
+      });
+      // console.log("Payment API response:", response.data);
 
       if (response.data.sessionId) {
         const cashfree = window.Cashfree({
@@ -274,7 +294,27 @@ const AskShotLanding: React.FC = () => {
       }
     } catch (error) {
       console.error("Error creating payment:", error);
-      setError("Something went wrong. Please try again.");
+
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+
+        // Handle the case where user already has premium subscription
+        if (
+          error.response.data?.error ===
+          "You already have a premium subscription"
+        ) {
+          setUserTier("paid");
+          setError("You already have an active premium subscription.");
+        } else {
+          setError(
+            error.response.data?.error ||
+              "Something went wrong. Please try again."
+          );
+        }
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -1264,10 +1304,25 @@ const AskShotLanding: React.FC = () => {
                           }`}
                           variant={plan.popular ? "default" : "outline"}
                           size="lg"
-                          onClick={plan.popular ? handleUpgrade : undefined}
-                          disabled={plan.popular && loading}
+                          onClick={
+                            plan.name === "Enterprise"
+                              ? undefined
+                              : plan.popular && userTier !== "paid"
+                              ? (e) => handleUpgrade(e)
+                              : undefined
+                          }
+                          disabled={
+                            plan.name === "Free" ||
+                            (plan.popular && (loading || userTier === "paid"))
+                          }
                         >
-                          {plan.popular && loading ? "Processing..." : plan.cta}
+                          {plan.popular && loading
+                            ? "Processing..."
+                            : plan.popular && userTier === "paid"
+                            ? "Current Plan"
+                            : plan.name === "Free"
+                            ? "Default Plan"
+                            : plan.cta}
                         </Button>
                       )}
                     </motion.div>

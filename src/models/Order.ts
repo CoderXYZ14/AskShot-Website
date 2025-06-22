@@ -7,6 +7,8 @@ export interface Order extends Document {
   currency: string;
   status: string;
   paymentSessionId: string;
+  planType: string;
+  period: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +41,14 @@ const OrderSchema = new Schema(
     },
     paymentSessionId: {
       type: String,
+    },
+    planType: {
+      type: String,
+      default: "Pro",
+    },
+    period: {
+      type: String,
+      default: "monthly",
     },
   },
   { timestamps: true }
