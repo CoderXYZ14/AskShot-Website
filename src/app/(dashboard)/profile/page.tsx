@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import Image from "next/image";
+import Link from "next/link";
 
 interface UserProfile {
   id: string;
@@ -167,13 +168,19 @@ const ProfilePage = () => {
             Launch the AskShot extension to start capturing and analyzing
             screenshots.
           </p>
-          <Button
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-            onClick={openExtension}
+          <Link
+            href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Open AskShot Extension
-          </Button>
+            <Button
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+              onClick={openExtension}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open AskShot Extension
+            </Button>
+          </Link>
         </Card>
       </div>
     </motion.div>

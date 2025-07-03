@@ -52,6 +52,9 @@ const getAuthHeaders = () => {
       "SECRET_KEY:",
       !!secretKey
     );
+    throw new Error(
+      "Cashfree API credentials are missing. Please check your environment variables."
+    );
   }
 
   return {
@@ -65,10 +68,7 @@ const getAuthHeaders = () => {
 export async function createCashfreeOrder(
   orderData: CashfreeOrderData
 ): Promise<CashfreeOrderResponse> {
-  const apiUrl =
-    process.env.CASHFREE_API_URL ||
-    process.env.CASHFREE_API_URL ||
-    "https://api.cashfree.com/pg";
+  const apiUrl = process.env.CASHFREE_API_URL || "https://api.cashfree.com/pg";
   console.log("Using API URL:", apiUrl);
 
   console.log("Creating order with Cashfree");

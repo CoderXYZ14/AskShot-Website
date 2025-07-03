@@ -246,7 +246,7 @@ const AskShotLanding: React.FC = () => {
   ];
 
   // Add this payment handler function
-  const handleUpgrade = async (event?: React.MouseEvent) => {
+  const handleUpgrade = async () => {
     const planType = "Pro";
     if (status !== "authenticated") {
       router.push("/auth/signin");
@@ -509,14 +509,14 @@ const AskShotLanding: React.FC = () => {
             </motion.div>
 
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="/profile" passHref>
-                <motion.a
+              <motion.div whileHover={{ y: -2 }}>
+                <Link
+                  href="/profile"
                   className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
-                  whileHover={{ y: -2 }}
                 >
                   Profile
-                </motion.a>
-              </Link>
+                </Link>
+              </motion.div>
               <motion.a
                 href="#features"
                 className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
@@ -754,13 +754,19 @@ const AskShotLanding: React.FC = () => {
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-2xl shadow-purple-500/25 px-8 py-4 text-lg"
+                <Link
+                  href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  <Chrome className="h-5 w-5 mr-2" />
-                  Try the Extension
-                </Button>
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-2xl shadow-purple-500/25 px-8 py-4 text-lg"
+                  >
+                    <Chrome className="h-5 w-5 mr-2" />
+                    Try the Extension
+                  </Button>
+                </Link>
               </motion.div>
               <motion.div
                 whileHover={{ scale: 1.05, y: -2 }}
@@ -1109,13 +1115,19 @@ const AskShotLanding: React.FC = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Button
-                      className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-xl shadow-purple-500/25"
-                      size="lg"
+                    <Link
+                      href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <Download className="h-5 w-5 mr-2" />
-                      Download Extension
-                    </Button>
+                      <Button
+                        className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-xl shadow-purple-500/25"
+                        size="lg"
+                      >
+                        <Download className="h-5 w-5 mr-2" />
+                        Download Extension
+                      </Button>
+                    </Link>
                   </motion.div>
                 </div>
               </div>
@@ -1308,7 +1320,7 @@ const AskShotLanding: React.FC = () => {
                             plan.name === "Enterprise"
                               ? undefined
                               : plan.popular && userTier !== "paid"
-                              ? (e) => handleUpgrade(e)
+                              ? () => handleUpgrade()
                               : undefined
                           }
                           disabled={
@@ -1551,25 +1563,37 @@ const AskShotLanding: React.FC = () => {
                 whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-2xl shadow-purple-500/25 px-10 py-6 text-xl"
+                <Link
+                  href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  <Chrome className="h-6 w-6 mr-3" />
-                  Install Extension
-                </Button>
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 shadow-2xl shadow-purple-500/25 px-10 py-6 text-xl"
+                  >
+                    <Chrome className="h-6 w-6 mr-3" />
+                    Install Extension
+                  </Button>
+                </Link>
               </motion.div>
               <motion.div
                 whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-purple-500/30 hover:bg-purple-500/10 backdrop-blur-sm px-10 py-6 text-xl"
+                <Link
+                  href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  View on Chrome Store
-                </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-purple-500/30 hover:bg-purple-500/10 backdrop-blur-sm px-10 py-6 text-xl"
+                  >
+                    View on Chrome Store
+                  </Button>
+                </Link>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -1686,20 +1710,44 @@ const AskShotLanding: React.FC = () => {
             <div>
               <h3 className="font-semibold mb-6 text-lg">Product</h3>
               <ul className="space-y-3 text-muted-foreground">
-                {["Features", "Pricing", "Chrome Store"].map((item, index) => (
+                {[
+                  { name: "Features", href: "#features" },
+                  { name: "Pricing", href: "#pricing" },
+                  {
+                    name: "Chrome Store",
+                    href: "https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb",
+                  },
+                ].map((item, index) => (
                   <motion.li
-                    key={item}
+                    key={item.name}
                     initial={{ opacity: 0, x: -10 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                     viewport={{ once: true }}
                   >
-                    <a
-                      href="#"
-                      className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
-                    >
-                      {item}
-                    </a>
+                    {item.href.startsWith("#") ? (
+                      <a
+                        href={item.href}
+                        className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
+                      >
+                        {item.name}
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
+                        target={
+                          item.name === "Chrome Store" ? "_blank" : undefined
+                        }
+                        rel={
+                          item.name === "Chrome Store"
+                            ? "noopener noreferrer"
+                            : undefined
+                        }
+                      >
+                        {item.name}
+                      </Link>
+                    )}
                   </motion.li>
                 ))}
               </ul>
