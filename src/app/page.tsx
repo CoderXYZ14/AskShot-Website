@@ -136,6 +136,14 @@ const AnimatedGrid: React.FC = () => {
   );
 };
 
+/**
+ * AskShotLanding is a React functional component that renders the main
+ * landing page for the AskShot application. It includes several sections
+ * such as navigation, hero, features, pricing, testimonials, and FAQ.
+ * The component handles theme switching, user session management,
+ * subscription status checking, and payment processing. It also
+ * integrates animated UI elements to enhance the user experience.
+ */
 const AskShotLanding: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const [isDark, setIsDark] = useState(true);
@@ -517,34 +525,40 @@ const AskShotLanding: React.FC = () => {
                   Profile
                 </Link>
               </motion.div>
-              <motion.a
-                href="#features"
-                className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
-                whileHover={{ y: -2 }}
-              >
-                Features
-              </motion.a>
-              <motion.a
-                href="#pricing"
-                className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
-                whileHover={{ y: -2 }}
-              >
-                Pricing
-              </motion.a>
-              <motion.a
-                href="https://calendly.com/shahwaizislam/askshot-demo"
-                className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
-                whileHover={{ y: -2 }}
-              >
-                Book Demo
-              </motion.a>
-              <motion.a
-                href="#faq"
-                className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
-                whileHover={{ y: -2 }}
-              >
-                FAQ
-              </motion.a>
+              <motion.div whileHover={{ y: -2 }}>
+                <Link
+                  href="#features"
+                  className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
+                >
+                  Features
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ y: -2 }}>
+                <Link
+                  href="#pricing"
+                  className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
+                >
+                  Pricing
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ y: -2 }}>
+                <Link
+                  href="https://calendly.com/shahwaizislam/askshot-demo"
+                  className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Book Demo
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ y: -2 }}>
+                <Link
+                  href="#faq"
+                  className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
+                >
+                  FAQ
+                </Link>
+              </motion.div>
               <div className="flex items-center space-x-2 bg-muted/50 rounded-full p-1 backdrop-blur-sm">
                 <Sun className="h-4 w-4" />
                 <Switch checked={isDark} onCheckedChange={handleThemeChange} />
@@ -645,15 +659,28 @@ const AskShotLanding: React.FC = () => {
             className="md:hidden bg-background border-b border-border"
           >
             <div className="px-4 py-4 space-y-4">
-              <a href="#features" className="block text-muted-foreground">
+              {session && (
+                <Link href="/profile" className="block text-muted-foreground">
+                  Profile
+                </Link>
+              )}
+              <Link href="#features" className="block text-muted-foreground">
                 Features
-              </a>
-              <a href="#pricing" className="block text-muted-foreground">
+              </Link>
+              <Link href="#pricing" className="block text-muted-foreground">
                 Pricing
-              </a>
-              <a href="#faq" className="block text-muted-foreground">
+              </Link>
+              <Link
+                href="https://calendly.com/shahwaizislam/askshot-demo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-muted-foreground"
+              >
+                Book Demo
+              </Link>
+              <Link href="#faq" className="block text-muted-foreground">
                 FAQ
-              </a>
+              </Link>
               <div className="flex items-center space-x-2">
                 <Sun className="h-4 w-4" />
                 <Switch checked={isDark} onCheckedChange={handleThemeChange} />
@@ -1293,7 +1320,7 @@ const AskShotLanding: React.FC = () => {
                       whileTap={{ scale: 0.95 }}
                     >
                       {plan.name === "Enterprise" ? (
-                        <a
+                        <Link
                           href="https://calendly.com/shahwaizislam1404/30min"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -1306,7 +1333,7 @@ const AskShotLanding: React.FC = () => {
                           >
                             {plan.cta}
                           </Button>
-                        </a>
+                        </Link>
                       ) : (
                         <Button
                           className={`w-full py-4 text-lg ${
@@ -1626,7 +1653,7 @@ const AskShotLanding: React.FC = () => {
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <a
+                  <Link
                     href="https://x.com/coderxyz14"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -1638,13 +1665,13 @@ const AskShotLanding: React.FC = () => {
                     >
                       <Twitter className="h-5 w-5" />
                     </Button>
-                  </a>
+                  </Link>
                 </motion.div>
                 <motion.div
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <a
+                  <Link
                     href="https://github.com/CoderXYZ14/"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -1656,13 +1683,13 @@ const AskShotLanding: React.FC = () => {
                     >
                       <Github className="h-5 w-5" />
                     </Button>
-                  </a>
+                  </Link>
                 </motion.div>
                 <motion.div
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <a
+                  <Link
                     href="https://www.linkedin.com/in/shahwaiz-islam/"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -1674,13 +1701,13 @@ const AskShotLanding: React.FC = () => {
                     >
                       <Linkedin className="h-5 w-5" />
                     </Button>
-                  </a>
+                  </Link>
                 </motion.div>
                 <motion.div
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <a href="mailto:shahwaizislam1404@gmail.com">
+                  <Link href="mailto:shahwaizislam1404@gmail.com">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -1702,7 +1729,7 @@ const AskShotLanding: React.FC = () => {
                         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                       </svg>
                     </Button>
-                  </a>
+                  </Link>
                 </motion.div>
               </div>
             </div>
@@ -1726,12 +1753,12 @@ const AskShotLanding: React.FC = () => {
                     viewport={{ once: true }}
                   >
                     {item.href.startsWith("#") ? (
-                      <a
+                      <Link
                         href={item.href}
                         className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
                       >
                         {item.name}
-                      </a>
+                      </Link>
                     ) : (
                       <Link
                         href={item.href}
@@ -1762,12 +1789,12 @@ const AskShotLanding: React.FC = () => {
                   transition={{ delay: 0 * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <a
+                  <Link
                     href="#"
                     className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
                   >
                     About
-                  </a>
+                  </Link>
                 </motion.li>
                 <motion.li
                   initial={{ opacity: 0, x: -10 }}
@@ -1814,12 +1841,12 @@ const AskShotLanding: React.FC = () => {
                   transition={{ delay: 4 * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <a
+                  <Link
                     href="mailto:shahwaizislam1404@gmail.com"
                     className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
                   >
                     Contact
-                  </a>
+                  </Link>
                 </motion.li>
               </ul>
             </div>

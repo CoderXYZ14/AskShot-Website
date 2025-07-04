@@ -63,12 +63,12 @@ const RefundTermsPage = () => {
             </h2>
             <p className="mb-4">
               To request a refund, please contact our support team at{" "}
-              <a
+              <Link
                 href="mailto:shahwaizislam1404@gmail.com"
                 className="text-purple-400 hover:text-purple-300"
               >
                 shahwaizislam1404@gmail.com
-              </a>{" "}
+              </Link>
               with the following information:
             </p>
             <ul className="list-disc pl-6 space-y-2">
@@ -91,12 +91,12 @@ const RefundTermsPage = () => {
             <p>
               If you have any questions about our refund policy, please contact
               us at
-              <a
+              <Link
                 href="mailto:shahwaizislam1404@gmail.com"
                 className="text-purple-400 hover:text-purple-300"
               >
                 shahwaizislam1404@gmail.com
-              </a>
+              </Link>
               .
             </p>
           </section>

@@ -31,7 +31,8 @@ const TermsOfServicePage = () => {
               Introduction
             </h2>
             <p className="mb-4">
-              Welcome to AskShot. By using our Chrome extension and website, you agree to these Terms of Service. Please read them carefully.
+              Welcome to AskShot. By using our Chrome extension and website, you
+              agree to these Terms of Service. Please read them carefully.
             </p>
           </section>
 
@@ -40,7 +41,10 @@ const TermsOfServicePage = () => {
               Acceptance of Terms
             </h2>
             <p className="mb-4">
-              By accessing or using AskShot, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this service.
+              By accessing or using AskShot, you agree to be bound by these
+              Terms of Service and all applicable laws and regulations. If you
+              do not agree with any of these terms, you are prohibited from
+              using or accessing this service.
             </p>
           </section>
 
@@ -55,7 +59,8 @@ const TermsOfServicePage = () => {
               <li>Secure storage of your screenshots</li>
             </ul>
             <p className="mt-4">
-              You agree to use these services only for lawful purposes and in accordance with these Terms.
+              You agree to use these services only for lawful purposes and in
+              accordance with these Terms.
             </p>
           </section>
 
@@ -64,7 +69,10 @@ const TermsOfServicePage = () => {
               User Accounts
             </h2>
             <p className="mb-4">
-              To use certain features of AskShot, you may need to create an account. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account.
+              To use certain features of AskShot, you may need to create an
+              account. You are responsible for maintaining the confidentiality
+              of your account information and for all activities that occur
+              under your account.
             </p>
           </section>
 
@@ -73,10 +81,20 @@ const TermsOfServicePage = () => {
               Subscription and Payments
             </h2>
             <p className="mb-4">
-              AskShot offers both free and premium subscription plans. By subscribing to a premium plan, you agree to pay the applicable fees. We reserve the right to change our pricing at any time, with notice to our users.
+              AskShot offers both free and premium subscription plans. By
+              subscribing to a premium plan, you agree to pay the applicable
+              fees. We reserve the right to change our pricing at any time, with
+              notice to our users.
             </p>
             <p className="mb-4">
-              For information about refunds, please refer to our <Link href="/refund-terms" className="text-purple-400 hover:text-purple-300">Refund Terms</Link>.
+              For information about refunds, please refer to our{" "}
+              <Link
+                href="/refund-terms"
+                className="text-purple-400 hover:text-purple-300"
+              >
+                Refund Terms
+              </Link>
+              .
             </p>
           </section>
 
@@ -85,7 +103,10 @@ const TermsOfServicePage = () => {
               Intellectual Property
             </h2>
             <p className="mb-4">
-              AskShot and its original content, features, and functionality are owned by AskShot and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
+              AskShot and its original content, features, and functionality are
+              owned by AskShot and are protected by international copyright,
+              trademark, patent, trade secret, and other intellectual property
+              laws.
             </p>
           </section>
 
@@ -94,7 +115,10 @@ const TermsOfServicePage = () => {
               User Content
             </h2>
             <p className="mb-4">
-              When you capture screenshots using AskShot, you retain ownership of your content. However, you grant us a license to use, store, and process this content for the purpose of providing our services to you.
+              When you capture screenshots using AskShot, you retain ownership
+              of your content. However, you grant us a license to use, store,
+              and process this content for the purpose of providing our services
+              to you.
             </p>
           </section>
 
@@ -103,7 +127,9 @@ const TermsOfServicePage = () => {
               Limitation of Liability
             </h2>
             <p className="mb-4">
-              AskShot shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the service.
+              AskShot shall not be liable for any indirect, incidental, special,
+              consequential, or punitive damages resulting from your use of or
+              inability to use the service.
             </p>
           </section>
 
@@ -112,7 +138,10 @@ const TermsOfServicePage = () => {
               Changes to Terms
             </h2>
             <p className="mb-4">
-              We reserve the right to modify these Terms at any time. We will notify users of any significant changes. Your continued use of AskShot after such modifications constitutes your acceptance of the new Terms.
+              We reserve the right to modify these Terms at any time. We will
+              notify users of any significant changes. Your continued use of
+              AskShot after such modifications constitutes your acceptance of
+              the new Terms.
             </p>
           </section>
 
@@ -121,7 +150,10 @@ const TermsOfServicePage = () => {
               Termination
             </h2>
             <p className="mb-4">
-              We may terminate or suspend your account and access to AskShot immediately, without prior notice, for conduct that we believe violates these Terms or is harmful to other users, us, or third parties, or for any other reason at our discretion.
+              We may terminate or suspend your account and access to AskShot
+              immediately, without prior notice, for conduct that we believe
+              violates these Terms or is harmful to other users, us, or third
+              parties, or for any other reason at our discretion.
             </p>
           </section>
 
@@ -130,13 +162,14 @@ const TermsOfServicePage = () => {
               Contact Information
             </h2>
             <p>
-              If you have any questions about these Terms of Service, please contact us at{" "}
-              <a
+              If you have any questions about these Terms of Service, please
+              contact us at{" "}
+              <Link
                 href="mailto:shahwaizislam1404@gmail.com"
                 className="text-purple-400 hover:text-purple-300"
               >
                 shahwaizislam1404@gmail.com
-              </a>
+              </Link>
               .
             </p>
           </section>

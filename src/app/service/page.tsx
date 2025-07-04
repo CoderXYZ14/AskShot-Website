@@ -119,12 +119,12 @@ const ServiceTermsPage = () => {
             <p>
               If you have any questions about these Terms of Service, please
               contact us at{" "}
-              <a
+              <Link
                 href="mailto:shahwaizislam1404@gmail.com"
                 className="text-purple-400 hover:text-purple-300"
               >
                 shahwaizislam1404@gmail.com
-              </a>
+              </Link>
               .
             </p>
           </section>
