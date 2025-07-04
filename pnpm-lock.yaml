@@ -11,6 +11,12 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.53.0
         version: 0.53.0
+      '@arcjet/inspect':
+        specifier: 1.0.0-beta.8
+        version: 1.0.0-beta.8
+      '@arcjet/next':
+        specifier: 1.0.0-beta.8
+        version: 1.0.0-beta.8(next@15.3.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
       '@auth/core':
         specifier: ^0.39.1
         version: 0.39.1
@@ -120,6 +126,68 @@ packages:
     resolution: {integrity: sha512-bl2frVo0cgHCXTzQEIHXPH329uQXC4YKBaLBkZmUc59tNiR3GgcGpBZU7mwfyv5tPuU/yT7tGHyoe5AnjN02QA==}
     hasBin: true
 
+  '@arcjet/analyze-wasm@1.0.0-beta.8':
+    resolution: {integrity: sha512-vDlKVHXJh045ASH/pRGH1j5vmPe2tfSbnBCFAc5uWQUG22XWZokd+83puTjqaFAj9SxpgQM/r/ql9SId9c3WmQ==}
+    engines: {node: '>=18'}
+
+  '@arcjet/analyze@1.0.0-beta.8':
+    resolution: {integrity: sha512-noWNtOLqRI5DnAzzr0UaqP+STop1E6raCkaO8WY7h50T2e3XknEMd0DKvjUohuGBm1YjT87+rW50PZ7v8lJ1Lw==}
+    engines: {node: '>=18'}
+
+  '@arcjet/cache@1.0.0-beta.8':
+    resolution: {integrity: sha512-bVpoSYRiBtsOnXJNow5rnZbNcZ3p0yxui3GcSNJVp4eIlj/6srO4jobAqzAUW8ABGpsu75Ft3t7aaB0Y6HxKzg==}
+    engines: {node: '>=18'}
+
+  '@arcjet/duration@1.0.0-beta.8':
+    resolution: {integrity: sha512-mVpZDmuNS8LRTK3OZrdFhOuPBps67LiAJl/jK8U0uhFmBHf5omN/0WPA+mfsb4QGuI24b9r78ogQYuyPZf0vbw==}
+    engines: {node: '>=18'}
+
+  '@arcjet/env@1.0.0-beta.8':
+    resolution: {integrity: sha512-t4j5s8SySxLdcF7aF2n76hRW0/jcug9Gkh6Fst0kpbG9iWEpnvKUOcuM0WVkrEKr0IrcfGbpGXbY9pZpDZMmcw==}
+    engines: {node: '>=18'}
+
+  '@arcjet/headers@1.0.0-beta.8':
+    resolution: {integrity: sha512-npqyyLtuM7DLBYTf+HfrXVBFiDbVt8UZpGeXGvL1FGONry53sEl5hnQ4CH1QqZRMVlOcuD2twfYAdGADvby1cQ==}
+    engines: {node: '>=18'}
+
+  '@arcjet/inspect@1.0.0-beta.8':
+    resolution: {integrity: sha512-n/Jz+oK11NfBl5tmksOGxweqp8oL2a2BEZcAfozbZr4734nRGIYxmLBOzgVg7s88vqBovyXn64ehKY7aFBHp0A==}
+    engines: {node: '>=18'}
+
+  '@arcjet/ip@1.0.0-beta.8':
+    resolution: {integrity: sha512-FUKoXaquLJQNf51CjmgCTpgFcVYmxlGAIhdlgCBV66eoFi6gBplCBANlPbdv/Al7Cu8DMJAt4B/Kuo1cHcnJZw==}
+    engines: {node: '>=18'}
+
+  '@arcjet/logger@1.0.0-beta.8':
+    resolution: {integrity: sha512-TQ5o8qnlfZR64UHTjq3/98TmNkHPGzG9bwiteFLIm+dJx3jZfpSldR1STe/hkrguE+SXnoMvS1ullRjD67QTTw==}
+    engines: {node: '>=18'}
+
+  '@arcjet/next@1.0.0-beta.8':
+    resolution: {integrity: sha512-pa3pRHhN9HP0cp6Fh1elpzzuQG+n/j8eFxSQOVwJukAkOBGVAG9BxGZ6NXz4VKMr8s2kV1fJ11o3VM67BL2mug==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      next: '>=13'
+
+  '@arcjet/protocol@1.0.0-beta.8':
+    resolution: {integrity: sha512-f6oJ6vq73tKRSVJGE+Km2hJwfroIgZurkRL2gPJvW65AWHDh6pQbqrusa2qYaIuWlyUqUHI4vnlZSKkFdk/zzw==}
+    engines: {node: '>=18'}
+
+  '@arcjet/runtime@1.0.0-beta.8':
+    resolution: {integrity: sha512-tSWnrdVrB8m3q+/YtB0c6kvcxBtxvYPVyaLF5rveNRI96u63rx3qbuyjuuZrhJyVI7qx2Q7EPhnvBae6AvNdow==}
+    engines: {node: '>=18'}
+
+  '@arcjet/sprintf@1.0.0-beta.8':
+    resolution: {integrity: sha512-Zqzu5zH5nd0mvWvfV6JYdTof2lR2NovTV1GykfMC3GX1OdK8OuzKS7cbnFVi1YfN3gjR9e7BCvwHHsJBCwlt6A==}
+    engines: {node: '>=18'}
+
+  '@arcjet/stable-hash@1.0.0-beta.8':
+    resolution: {integrity: sha512-KH6YI3eS3l9F6wg1IYvAEVbaAerrsxW9B+uwV3WlqlXNiG09t6rjSgTKTXr2AL2KWOz7vhq7+nzbkr2xHiBr5A==}
+    engines: {node: '>=18'}
+
+  '@arcjet/transport@1.0.0-beta.8':
+    resolution: {integrity: sha512-Nlbd5ngPLkkZhmDece8S/kJPgXn1FubjXgTX90XayMFqUXUU+GJ8Jh5mqK1hnV91Y8BU8MvN4CYZ6NjpJ3VZ+g==}
+    engines: {node: '>=18'}
+
   '@auth/core@0.39.1':
     resolution: {integrity: sha512-McD8slui0oOA1pjR5sPjLPl5Zm//nLP/8T3kr8hxIsvNLvsiudYvPHhDFPjh1KcZ2nFxCkZmP6bRxaaPd/AnLA==}
     peerDependencies:
@@ -137,6 +205,27 @@ packages:
   '@babel/runtime@7.27.6':
     resolution: {integrity: sha512-vbavdySgbTTrmFE+EsiqUTzlOr5bzlnJtUv9PynGCAKvfQqjIXbvFdumPM/GxMDfyuGMJaJAU6TO4zc1Jf1i8Q==}
     engines: {node: '>=6.9.0'}
+
+  '@bufbuild/protobuf@1.10.1':
+    resolution: {integrity: sha512-wJ8ReQbHxsAfXhrf9ixl0aYbZorRuOWpBNzm8pL8ftmSxQx/wnJD5Eg861NwJU/czy2VXFIebCeZnZrI9rktIQ==}
+
+  '@connectrpc/connect-node@1.6.1':
+    resolution: {integrity: sha512-DxcD1wsF/aX9GegjAtl7VbpiZNjVJozy87VbaFoN6AF0Ln1Q757r5dgV59Gz0wmlk5f17txUsrEr1f2inlnnAg==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.10.0
+      '@connectrpc/connect': 1.6.1
+
+  '@connectrpc/connect-web@1.6.1':
+    resolution: {integrity: sha512-GVfxQOmt3TtgTaKeXLS/EA2IHa3nHxwe2BCHT7X0Q/0hohM+nP5DDnIItGEjGrGdt3LTTqWqE4s70N4h+qIMlQ==}
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.10.0
+      '@connectrpc/connect': 1.6.1
+
+  '@connectrpc/connect@1.6.1':
+    resolution: {integrity: sha512-KchMDNtU4CDTdkyf0qG7ugJ6qHTOR/aI7XebYn3OTCNagaDYWiZUVKgRgwH79yeMkpNgvEUaXSK7wKjaBK9b/Q==}
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.10.0
 
   '@emnapi/core@1.4.3':
     resolution: {integrity: sha512-4m62DuCE07lw01soJwPiBGC0nAww0Q+RY70VZ+n49yDIO13yyinhbWCeNnaob0lakDtWQzSdtNWzJeOJt2ma+g==}
@@ -184,6 +273,10 @@ packages:
   '@eslint/plugin-kit@0.3.1':
     resolution: {integrity: sha512-0J+zgWxHN+xXONWIyPWKFMgVuJoZuGiIFu8yxk7RJjxkzpGmyja5wRFqZIVtjDVOQpV+Rw0iOAjYPE2eQyjr0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fastify/busboy@2.1.1':
+    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
+    engines: {node: '>=14'}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -948,6 +1041,10 @@ packages:
   ansi-styles@4.3.0:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
     engines: {node: '>=8'}
+
+  arcjet@1.0.0-beta.8:
+    resolution: {integrity: sha512-5nkeNqVbvIpqloZ7rhuYZEzUc4L2KBlBdA+kit5CQQC+XNtdpLEobNQMgDfdz3LrPn9TOfRuXwMQvNvWY8lqig==}
+    engines: {node: '>=18'}
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
@@ -2361,6 +2458,9 @@ packages:
     resolution: {integrity: sha512-3KS2b+kL7fsuk/eJZ7EQdnEmQoaho/r6KUef7hxvltNA5DR8NAUM+8wJMbJyZ4G9/7i3v5zPBIMN5aybAh2/Jg==}
     engines: {node: '>= 0.4'}
 
+  typeid-js@1.2.0:
+    resolution: {integrity: sha512-t76ZucAnvGC60ea/HjVsB0TSoB0cw9yjnfurUgtInXQWUI/VcrlZGpO23KN3iSe8yOGUgb1zr7W7uEzJ3hSljA==}
+
   typescript@5.8.3:
     resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
     engines: {node: '>=14.17'}
@@ -2376,6 +2476,10 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+  undici@5.29.0:
+    resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
+    engines: {node: '>=14.0'}
+
   unrs-resolver@1.7.13:
     resolution: {integrity: sha512-QUjCYKAgrdJpf3wA73zWjOrO7ra19lfnwQ8HRkNOLah5AVDqOS38UunnyhzsSL8AE+2/AGnAHxlr8cGshCP35A==}
 
@@ -2389,6 +2493,10 @@ packages:
 
   utrie@1.0.2:
     resolution: {integrity: sha512-1MLa5ouZiOmQzUbjbu9VmjLzn1QLXBhwpUa7kdLUQK+KQ5KA9I1vk5U4YHe/X2Ch7PYnJfWuWT+VbuxbGwljhw==}
+
+  uuid@10.0.0:
+    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    hasBin: true
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
@@ -2449,6 +2557,62 @@ snapshots:
 
   '@anthropic-ai/sdk@0.53.0': {}
 
+  '@arcjet/analyze-wasm@1.0.0-beta.8': {}
+
+  '@arcjet/analyze@1.0.0-beta.8':
+    dependencies:
+      '@arcjet/analyze-wasm': 1.0.0-beta.8
+      '@arcjet/protocol': 1.0.0-beta.8
+
+  '@arcjet/cache@1.0.0-beta.8': {}
+
+  '@arcjet/duration@1.0.0-beta.8': {}
+
+  '@arcjet/env@1.0.0-beta.8': {}
+
+  '@arcjet/headers@1.0.0-beta.8': {}
+
+  '@arcjet/inspect@1.0.0-beta.8':
+    dependencies:
+      '@arcjet/protocol': 1.0.0-beta.8
+
+  '@arcjet/ip@1.0.0-beta.8': {}
+
+  '@arcjet/logger@1.0.0-beta.8':
+    dependencies:
+      '@arcjet/sprintf': 1.0.0-beta.8
+
+  '@arcjet/next@1.0.0-beta.8(next@15.3.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0))':
+    dependencies:
+      '@arcjet/env': 1.0.0-beta.8
+      '@arcjet/headers': 1.0.0-beta.8
+      '@arcjet/ip': 1.0.0-beta.8
+      '@arcjet/logger': 1.0.0-beta.8
+      '@arcjet/protocol': 1.0.0-beta.8
+      '@arcjet/transport': 1.0.0-beta.8
+      arcjet: 1.0.0-beta.8
+      next: 15.3.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+
+  '@arcjet/protocol@1.0.0-beta.8':
+    dependencies:
+      '@arcjet/cache': 1.0.0-beta.8
+      '@bufbuild/protobuf': 1.10.1
+      '@connectrpc/connect': 1.6.1(@bufbuild/protobuf@1.10.1)
+      typeid-js: 1.2.0
+
+  '@arcjet/runtime@1.0.0-beta.8': {}
+
+  '@arcjet/sprintf@1.0.0-beta.8': {}
+
+  '@arcjet/stable-hash@1.0.0-beta.8': {}
+
+  '@arcjet/transport@1.0.0-beta.8':
+    dependencies:
+      '@bufbuild/protobuf': 1.10.1
+      '@connectrpc/connect': 1.6.1(@bufbuild/protobuf@1.10.1)
+      '@connectrpc/connect-node': 1.6.1(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))
+      '@connectrpc/connect-web': 1.6.1(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))
+
   '@auth/core@0.39.1':
     dependencies:
       '@panva/hkdf': 1.2.1
@@ -2458,6 +2622,23 @@ snapshots:
       preact-render-to-string: 6.5.11(preact@10.24.3)
 
   '@babel/runtime@7.27.6': {}
+
+  '@bufbuild/protobuf@1.10.1': {}
+
+  '@connectrpc/connect-node@1.6.1(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))':
+    dependencies:
+      '@bufbuild/protobuf': 1.10.1
+      '@connectrpc/connect': 1.6.1(@bufbuild/protobuf@1.10.1)
+      undici: 5.29.0
+
+  '@connectrpc/connect-web@1.6.1(@bufbuild/protobuf@1.10.1)(@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1))':
+    dependencies:
+      '@bufbuild/protobuf': 1.10.1
+      '@connectrpc/connect': 1.6.1(@bufbuild/protobuf@1.10.1)
+
+  '@connectrpc/connect@1.6.1(@bufbuild/protobuf@1.10.1)':
+    dependencies:
+      '@bufbuild/protobuf': 1.10.1
 
   '@emnapi/core@1.4.3':
     dependencies:
@@ -2518,6 +2699,8 @@ snapshots:
     dependencies:
       '@eslint/core': 0.14.0
       levn: 0.4.1
+
+  '@fastify/busboy@2.1.1': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -3165,6 +3348,16 @@ snapshots:
   ansi-styles@4.3.0:
     dependencies:
       color-convert: 2.0.1
+
+  arcjet@1.0.0-beta.8:
+    dependencies:
+      '@arcjet/analyze': 1.0.0-beta.8
+      '@arcjet/cache': 1.0.0-beta.8
+      '@arcjet/duration': 1.0.0-beta.8
+      '@arcjet/headers': 1.0.0-beta.8
+      '@arcjet/protocol': 1.0.0-beta.8
+      '@arcjet/runtime': 1.0.0-beta.8
+      '@arcjet/stable-hash': 1.0.0-beta.8
 
   argparse@2.0.1: {}
 
@@ -4813,6 +5006,10 @@ snapshots:
       possible-typed-array-names: 1.1.0
       reflect.getprototypeof: 1.0.10
 
+  typeid-js@1.2.0:
+    dependencies:
+      uuid: 10.0.0
+
   typescript@5.8.3: {}
 
   unbox-primitive@1.1.0:
@@ -4825,6 +5022,10 @@ snapshots:
   uncrypto@0.1.3: {}
 
   undici-types@6.21.0: {}
+
+  undici@5.29.0:
+    dependencies:
+      '@fastify/busboy': 2.1.1
 
   unrs-resolver@1.7.13:
     dependencies:
@@ -4860,6 +5061,8 @@ snapshots:
     dependencies:
       base64-arraybuffer: 1.0.2
     optional: true
+
+  uuid@10.0.0: {}
 
   uuid@8.3.2: {}
 

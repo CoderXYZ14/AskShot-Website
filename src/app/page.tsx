@@ -543,7 +543,7 @@ const AskShotLanding: React.FC = () => {
               </motion.div>
               <motion.div whileHover={{ y: -2 }}>
                 <Link
-                  href="https://calendly.com/shahwaizislam/askshot-demo"
+                  href="https://calendly.com/shahwaizislam1404/30min"
                   className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -671,7 +671,7 @@ const AskShotLanding: React.FC = () => {
                 Pricing
               </Link>
               <Link
-                href="https://calendly.com/shahwaizislam/askshot-demo"
+                href="https://calendly.com/shahwaizislam1404/30min"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-muted-foreground"
