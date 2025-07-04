@@ -594,7 +594,9 @@ const HistoryPage = () => {
                   <Image
                     src={selectedScreenshot.imageUrl}
                     alt="Screenshot"
-                    style={{ width: "100%", display: "block" }}
+                    width={800}
+                    height={600}
+                    style={{ width: "100%", height: "auto", display: "block" }}
                   />
                 </div>
 

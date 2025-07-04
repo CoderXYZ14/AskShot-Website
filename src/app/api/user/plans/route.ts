@@ -5,6 +5,7 @@ import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User";
 import ScreenshotModel from "@/models/Screenshot";
 import QuestionModel from "@/models/Question";
+import { redis } from "@/lib/redis";
 
 export async function GET() {
   try {
@@ -14,9 +15,26 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userEmail = session.user.email!;
+
+    // Create a date-based cache key since usage stats change daily
+    const currentDate = new Date();
+    const dateString = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD format
+    const cacheKey = `user:plans:${userEmail}:${dateString}`;
+
+    // Try to get data from cache first
+    try {
+      const cachedPlans = await redis.get(cacheKey);
+      if (cachedPlans) {
+        return NextResponse.json(cachedPlans);
+      }
+    } catch (error) {
+      console.error("Redis error:", error);
+    }
+
     await dbConnect();
 
-    const user = await UserModel.findOne({ email: session.user.email });
+    const user = await UserModel.findOne({ email: userEmail });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -90,7 +108,7 @@ export async function GET() {
       (questionCountToday / planLimits.aiChatsPerDay) * 100
     );
 
-    return NextResponse.json({
+    const plansData = {
       currentPlan: userPlanTier,
       usage: {
         screenshots: {
@@ -110,7 +128,16 @@ export async function GET() {
           total: totalQuestionCount,
         },
       },
-    });
+    };
+
+    // Cache the plans data for 15 minutes (900 seconds)
+    try {
+      await redis.set(cacheKey, JSON.stringify(plansData), { ex: 900 });
+    } catch (error) {
+      console.error("Redis error:", error);
+    }
+
+    return NextResponse.json(plansData);
   } catch (error) {
     console.error("Error in plans API:", error);
     return NextResponse.json(

@@ -16,6 +16,7 @@ import QuestionModel from "@/models/Question";
 import UserModel from "@/models/User";
 import { authOptions } from "../auth/[...nextauth]/options";
 import mongoose from "mongoose";
+import { redis } from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
   try {
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Store the question and answer
-    await QuestionModel.create({
+    const newQuestion = await QuestionModel.create({
       userId: session.user.id,
       screenshotId: screenshotDoc._id,
       question,
@@ -130,6 +131,49 @@ export async function POST(request: NextRequest) {
     // Decrement the user's free trials
     user.freeTrialsLeft = Math.max(0, user.freeTrialsLeft - 1);
     await user.save();
+
+    // Update Redis cache
+    try {
+      const userId = session.user.id;
+
+      // Invalidate user questions cache
+      await redis.del(`user:questions:${userId}:all`);
+      await redis.del(
+        `user:questions:${userId}:screenshot:${screenshotDoc._id}`
+      );
+
+      // If it's a new screenshot, invalidate the screenshots cache
+      if (!screenshotId) {
+        await redis.del(`user:screenshots:${userId}`);
+      }
+
+      // Update screenshot details cache with the new question
+      const cacheKey = `screenshot:${screenshotDoc._id}:details`;
+      const cachedData = await redis.get(cacheKey);
+
+      if (cachedData) {
+        try {
+          const parsedData = JSON.parse(cachedData as string);
+          if (parsedData.questions) {
+            parsedData.questions.unshift(newQuestion.toJSON());
+            await redis.set(cacheKey, JSON.stringify(parsedData), { ex: 120 });
+          } else {
+            await redis.del(cacheKey); // If structure is unexpected, invalidate cache
+          }
+        } catch (parseError) {
+          console.error("Error parsing cached data:", parseError);
+          await redis.del(cacheKey); // If parsing fails, invalidate cache
+        }
+      }
+
+      // Update plans cache
+      const currentDate = new Date().toISOString().split("T")[0];
+      if (session.user.email) {
+        await redis.del(`user:plans:${session.user.email}:${currentDate}`);
+      }
+    } catch (error) {
+      console.error("Redis error:", error);
+    }
 
     return NextResponse.json({
       answer,

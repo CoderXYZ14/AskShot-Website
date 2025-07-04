@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import dbConnect from "@/lib/dbConnect";
 import ScreenshotModel from "@/models/Screenshot";
+import { redis } from "@/lib/redis";
 
 import { authOptions } from "../auth/[...nextauth]/options";
 
@@ -22,9 +23,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const userId = session.user.id;
+
     // Check if the same image already exists for this user
     const existingScreenshot = await ScreenshotModel.findOne({
-      userId: session.user.id,
+      userId,
       imageUrl,
     });
 
@@ -38,9 +41,16 @@ export async function POST(req: NextRequest) {
 
     // If the image doesn't exist, create a new entry
     const screenshot = await ScreenshotModel.create({
-      userId: session.user.id,
+      userId,
       imageUrl,
     });
+
+    // Invalidate the screenshots cache when adding a new screenshot
+    try {
+      await redis.del(`user:screenshots:${userId}`);
+    } catch (error) {
+      console.error("Redis error:", error);
+    }
 
     return NextResponse.json({ success: true, screenshot }, { status: 201 });
   } catch (error) {
@@ -59,12 +69,34 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = session.user.id;
+    const cacheKey = `user:screenshots:${userId}`;
+
+    // Try to get data from cache first
+    try {
+      const cachedScreenshots = await redis.get(cacheKey);
+      if (cachedScreenshots) {
+        return NextResponse.json(cachedScreenshots);
+      }
+    } catch (error) {
+      console.error("Redis error:", error);
+    }
+
     await dbConnect();
     const screenshots = await ScreenshotModel.find({
-      userId: session.user.id,
+      userId,
     }).sort({ createdAt: -1 });
 
-    return NextResponse.json({ screenshots });
+    const responseData = { screenshots };
+
+    // Cache the screenshots data for 2 minutes
+    try {
+      await redis.set(cacheKey, JSON.stringify(responseData), { ex: 120 });
+    } catch (error) {
+      console.error("Redis error:", error);
+    }
+
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error("Error fetching screenshots:", error);
     return NextResponse.json(

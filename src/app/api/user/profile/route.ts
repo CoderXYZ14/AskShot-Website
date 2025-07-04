@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/dbConnect";
 import UserModel, { User } from "@/models/User";
+import { redis } from "@/lib/redis";
 
 export async function GET() {
   try {
@@ -12,9 +13,21 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userEmail = session.user.email!;
+    const cacheKey = `user:profile:${userEmail}`;
+
+    try {
+      const cachedUser = await redis.get(cacheKey);
+      if (cachedUser) {
+        return NextResponse.json(cachedUser);
+      }
+    } catch (error) {
+      console.error("Redis error:", error);
+    }
+
     await dbConnect();
 
-    const user = await UserModel.findOne({ email: session.user.email });
+    const user = await UserModel.findOne({ email: userEmail });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -39,7 +52,53 @@ export async function GET() {
       maxCredits: user.maxCredits,
     };
 
+    try {
+      await redis.set(cacheKey, JSON.stringify(userData), { ex: 3600 });
+    } catch (error) {
+      console.error("Redis error:", error);
+    }
+
     return NextResponse.json(userData);
+  } catch (error) {
+    console.error("Error in profile API:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userEmail = session.user.email!;
+    const { name } = await req.json();
+
+    await dbConnect();
+
+    const user = await UserModel.findOneAndUpdate(
+      { email: userEmail },
+      { name },
+      { new: true }
+    );
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const cacheKey = `user:profile:${userEmail}`;
+    try {
+      await redis.del(cacheKey);
+    } catch (error) {
+      console.error("Redis error:", error);
+    }
+
+    return NextResponse.json({ message: "Profile updated successfully" });
   } catch (error) {
     console.error("Error in profile API:", error);
     return NextResponse.json(
