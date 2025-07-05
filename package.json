@@ -11,6 +11,7 @@
   },
   "homepage": "https://askshot.xyz",
   "scripts": {
+    "email": "email dev --dir src/app/email-preview",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
