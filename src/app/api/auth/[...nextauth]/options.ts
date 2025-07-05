@@ -4,6 +4,7 @@ import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/User";
 import { Account } from "next-auth";
 import { JWT } from "next-auth/jwt";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -33,6 +34,15 @@ export const authOptions: NextAuthOptions = {
               maxCredits: 5,
               googleId: account.providerAccountId,
             });
+
+            try {
+              const firstName = user.name
+                ? user.name.split(" ")[0]
+                : email.split("@")[0];
+              await sendWelcomeEmail(firstName, email);
+            } catch (emailError) {
+              console.error("Failed to send welcome email:", emailError);
+            }
           } else if (!existingUser.googleId) {
             existingUser.googleId = account.providerAccountId;
             await existingUser.save();
