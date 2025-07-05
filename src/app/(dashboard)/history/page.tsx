@@ -18,6 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import axios from "axios";
 import Image from "next/image";
 import { jsPDF } from "jspdf";
+import Link from "next/link";
+import { URLS } from "@/lib/constants";
 
 interface Screenshot {
   _id: string;
@@ -449,9 +451,15 @@ const HistoryPage = () => {
             Use the AskShot extension to capture screenshots and ask questions
             about them.
           </p>
-          <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-            Open Extension
-          </Button>
+          <Link
+            href={URLS.CHROME_EXTENSION}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+              Open Extension
+            </Button>
+          </Link>
         </div>
       ) : (
         <>

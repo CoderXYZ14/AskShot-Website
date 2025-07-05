@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { URLS } from "@/lib/constants";
 
 interface SidebarItem {
   id: string;
@@ -204,10 +205,16 @@ const Sidebar = () => {
                   animate={{ opacity: 1 }}
                   className="absolute bottom-6 left-6 right-6 space-y-3"
                 >
-                  <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Open Extension
-                  </Button>
+                  <Link
+                    href={URLS.CHROME_EXTENSION}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Open Extension
+                    </Button>
+                  </Link>
                   <Button
                     variant="outline"
                     className="w-full text-red-400 border-red-500/30 hover:bg-red-500/10"
