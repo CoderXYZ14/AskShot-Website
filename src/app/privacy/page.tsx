@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { URLS } from "@/lib/constants";
 
 const PrivacyPolicyPage = () => {
   const router = useRouter();
@@ -108,7 +109,7 @@ const PrivacyPolicyPage = () => {
                 <p>
                   Yes, you can request deletion of your account and all
                   associated data by contacting us at
-                  shahwaizislam1404@gmail.com. We&apos;re also planning to add a
+                  {URLS.EMAIL_LINK}. We&apos;re also planning to add a
                   self-service data deletion feature in the future.
                 </p>
               </div>
@@ -165,10 +166,10 @@ const PrivacyPolicyPage = () => {
               If you have any questions about this Privacy Policy, please
               contact us at{" "}
               <Link
-                href="mailto:shahwaizislam1404@gmail.com"
+                href={URLS.EMAIL}
                 className="text-purple-400 hover:text-purple-300"
               >
-                shahwaizislam1404@gmail.com
+                {URLS.EMAIL_LINK}
               </Link>
               .
             </p>

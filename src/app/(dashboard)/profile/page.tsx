@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import { URLS } from "@/lib/constants";
 
 interface UserProfile {
   id: string;
@@ -169,7 +170,7 @@ const ProfilePage = () => {
             screenshots.
           </p>
           <Link
-            href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+            href={URLS.CHROME_EXTENSION}
             target="_blank"
             rel="noopener noreferrer"
           >

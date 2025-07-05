@@ -16,12 +16,13 @@ import {
   Img,
   Button,
 } from "@react-email/components";
+import { URLS } from "@/lib/constants";
 
 interface WelcomeEmailProps {
   username: string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const WelcomeEmail = ({ username }: WelcomeEmailProps) => {
   return (
@@ -36,7 +37,7 @@ export const WelcomeEmail = ({ username }: WelcomeEmailProps) => {
             {/* Header with Logo */}
             <Section className="text-center mb-8">
               <Img
-                src="https://askshot.tiiny.site/icon.png"
+                src={URLS.LOGO}
                 alt="AskShot Logo"
                 width="60"
                 height="60"
@@ -46,22 +47,19 @@ export const WelcomeEmail = ({ username }: WelcomeEmailProps) => {
                 AskShot
               </Text>
             </Section>
-
             {/* Main Content */}
             <Heading className="text-gray-800 text-[24px] font-semibold text-center mb-6 leading-tight">
               Welcome to AskShot!
             </Heading>
-
             <Text className="text-gray-700 text-[16px] leading-[26px] mb-4">
               Hi {username},
             </Text>
-
             <Text className="text-gray-700 text-[16px] leading-[26px] mb-6">
-              Thank you for signing up with AskShot! We're excited to have you
-              on board. Your AI-powered screenshot assistant is ready to help
-              you capture, analyze, and get instant answers from any screenshot.
+              Thank you for signing up with AskShot! We&apos;re excited to have
+              you on board. Your AI-powered screenshot assistant is ready to
+              help you capture, analyze, and get instant answers from any
+              screenshot.
             </Text>
-
             {/* Extension Download Section */}
             <Section className="text-center mb-8">
               <Row>
@@ -74,11 +72,11 @@ export const WelcomeEmail = ({ username }: WelcomeEmailProps) => {
                   </Text>
                   <Row>
                     <td align="center">
-                      <Button href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb">
+                      <Button href={URLS.CHROME_EXTENSION}>
                         <Img
                           alt="Add to Chrome"
                           height={54}
-                          src="https://magenta-maribel-60.tiiny.site/chrome-extesnion.png"
+                          src={URLS.CHROME_EXTENSION_BUTTON}
                         />
                       </Button>
                     </td>
@@ -86,25 +84,18 @@ export const WelcomeEmail = ({ username }: WelcomeEmailProps) => {
                 </Column>
               </Row>
             </Section>
-
             <Text className="text-gray-700 text-[16px] leading-[26px] mb-6 text-center">
-              If you have any questions or need help getting started, don't
-              hesitate to reach out to our support team. We're here to help you
-              succeed!
+              If you have any questions or need help getting started, don&apos;t
+              hesitate to reach out to our support team. We&apos;re here to help
+              you succeed!
             </Text>
-
             <Hr className="border border-solid border-gray-200 my-8 mx-0 w-full" />
-
             {/* Footer */}
             <Section className="text-center">
               <table className="w-full">
                 <tr className="w-full">
                   <td align="center">
-                    <Img
-                      alt="AskShot Logo"
-                      height="42"
-                      src="https://askshot.tiiny.site/icon.png"
-                    />
+                    <Img alt="AskShot Logo" height="42" src={URLS.LOGO} />
                   </td>
                 </tr>
                 <tr className="w-full">
@@ -121,31 +112,31 @@ export const WelcomeEmail = ({ username }: WelcomeEmailProps) => {
                   <td align="center">
                     <Row className="table-cell h-[44px] w-[56px] align-bottom">
                       <Column className="pr-[8px]">
-                        <Link href="https://x.com/coderxyz14">
+                        <Link href={URLS.TWITTER}>
                           <Img
                             alt="Twitter/X"
                             height="24"
-                            src="https://react.email/static/x-logo.png"
+                            src={URLS.TWITTER_ICON}
                             width="24"
                           />
                         </Link>
                       </Column>
                       <Column className="pr-[8px]">
-                        <Link href="https://github.com/CoderXYZ14">
+                        <Link href={URLS.GITHUB}>
                           <Img
                             alt="GitHub"
                             height="24"
-                            src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+                            src={URLS.GITHUB_ICON}
                             width="24"
                           />
                         </Link>
                       </Column>
                       <Column>
-                        <Link href="https://www.linkedin.com/in/shahwaiz-islam/">
+                        <Link href={URLS.LINKEDIN}>
                           <Img
                             alt="LinkedIn"
                             height="24"
-                            src="https://content.linkedin.com/content/dam/me/business/en-us/amp/brand-site/v2/bg/LI-Bug.svg.original.svg"
+                            src={URLS.LINKEDIN_ICON}
                             width="24"
                           />
                         </Link>
@@ -165,7 +156,6 @@ export const WelcomeEmail = ({ username }: WelcomeEmailProps) => {
                 </tr> */}
               </table>
             </Section>
-
             <Text className="text-gray-500 text-[12px] leading-[20px] text-center mt-6">
               By signing up, you agree to our{" "}
               <Link
@@ -173,8 +163,8 @@ export const WelcomeEmail = ({ username }: WelcomeEmailProps) => {
                 className="text-purple-600 underline hover:text-purple-800"
               >
                 Terms of Service
-              </Link>{" "}
-              and{" "}
+              </Link>
+              and
               <Link
                 href={`${baseUrl}/privacy`}
                 className="text-purple-600 underline hover:text-purple-800"
@@ -182,7 +172,6 @@ export const WelcomeEmail = ({ username }: WelcomeEmailProps) => {
                 Privacy Policy
               </Link>
             </Text>
-
             <Text className="text-gray-500 text-[12px] leading-[20px] text-center mt-4">
               © 2025 AskShot. All rights reserved.
             </Text>

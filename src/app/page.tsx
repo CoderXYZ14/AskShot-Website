@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "motion/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { URLS } from "@/lib/constants";
 import {
   Chrome,
   Zap,
@@ -543,7 +544,7 @@ const AskShotLanding: React.FC = () => {
               </motion.div>
               <motion.div whileHover={{ y: -2 }}>
                 <Link
-                  href="https://calendly.com/shahwaizislam1404/30min"
+                  href={URLS.CALENDLY}
                   className="text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-105"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -671,7 +672,7 @@ const AskShotLanding: React.FC = () => {
                 Pricing
               </Link>
               <Link
-                href="https://calendly.com/shahwaizislam1404/30min"
+                href={URLS.CALENDLY}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block text-muted-foreground"
@@ -782,7 +783,7 @@ const AskShotLanding: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+                  href={URLS.CHROME_EXTENSION}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -1072,7 +1073,7 @@ const AskShotLanding: React.FC = () => {
               </div>
               <div className="flex-shrink-0">
                 <motion.a
-                  href="https://calendly.com/shahwaizislam1404/30min"
+                  href={URLS.CALENDLY}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block px-8 py-4 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 rounded-xl font-medium shadow-lg shadow-purple-500/25 text-white transition-all"
@@ -1143,7 +1144,7 @@ const AskShotLanding: React.FC = () => {
                     whileTap={{ scale: 0.95 }}
                   >
                     <Link
-                      href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+                      href={URLS.CHROME_EXTENSION}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -1321,7 +1322,7 @@ const AskShotLanding: React.FC = () => {
                     >
                       {plan.name === "Enterprise" ? (
                         <Link
-                          href="https://calendly.com/shahwaizislam1404/30min"
+                          href={URLS.CALENDLY}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block w-full"
@@ -1591,7 +1592,7 @@ const AskShotLanding: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+                  href={URLS.CHROME_EXTENSION}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -1609,7 +1610,7 @@ const AskShotLanding: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link
-                  href="https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb"
+                  href={URLS.CHROME_EXTENSION}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -1654,7 +1655,7 @@ const AskShotLanding: React.FC = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link
-                    href="https://x.com/coderxyz14"
+                    href={URLS.TWITTER}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -1672,7 +1673,7 @@ const AskShotLanding: React.FC = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link
-                    href="https://github.com/CoderXYZ14/"
+                    href={URLS.GITHUB}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -1690,7 +1691,7 @@ const AskShotLanding: React.FC = () => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link
-                    href="https://www.linkedin.com/in/shahwaiz-islam/"
+                    href={URLS.LINKEDIN}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -1707,7 +1708,7 @@ const AskShotLanding: React.FC = () => {
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Link href="mailto:shahwaizislam1404@gmail.com">
+                  <Link href={URLS.EMAIL}>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -1742,7 +1743,7 @@ const AskShotLanding: React.FC = () => {
                   { name: "Pricing", href: "#pricing" },
                   {
                     name: "Chrome Store",
-                    href: "https://chromewebstore.google.com/detail/kanioaflpfaoldkjeflbidhncicaobac?utm_source=item-share-cb",
+                    href: URLS.CHROME_EXTENSION,
                   },
                 ].map((item, index) => (
                   <motion.li
@@ -1842,7 +1843,7 @@ const AskShotLanding: React.FC = () => {
                   viewport={{ once: true }}
                 >
                   <Link
-                    href="mailto:shahwaizislam1404@gmail.com"
+                    href={URLS.EMAIL}
                     className="hover:text-purple-400 transition-all duration-300 hover:translate-x-1 inline-block"
                   >
                     Contact
@@ -1870,7 +1871,7 @@ const AskShotLanding: React.FC = () => {
               viewport={{ once: true }}
             >
               <Link
-                href="https://coff.ee/coderxyz14"
+                href={URLS.BUY_ME_COFFEE}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-4 py-2 rounded-md bg-[#FFDD00] text-black font-medium hover:bg-[#FFDD00]/90 transition-all mr-4"

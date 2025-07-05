@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { URLS } from "@/lib/constants";
 
 const TermsOfServicePage = () => {
   const router = useRouter();
@@ -165,10 +166,10 @@ const TermsOfServicePage = () => {
               If you have any questions about these Terms of Service, please
               contact us at{" "}
               <Link
-                href="mailto:shahwaizislam1404@gmail.com"
+                href={URLS.EMAIL}
                 className="text-purple-400 hover:text-purple-300"
               >
-                shahwaizislam1404@gmail.com
+                {URLS.EMAIL_LINK}
               </Link>
               .
             </p>

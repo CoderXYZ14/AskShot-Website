@@ -41,7 +41,12 @@ const plans: Plan[] = [
   {
     name: "Free",
     price: "₹0",
-    features: ["20 screenshots/day", "5 AI chats/day", "Basic support"],
+    features: [
+      "20 screenshots/day",
+      "5 AI chats/day",
+      "Basic support",
+      "Chrome extension access",
+    ],
     current: false,
   },
   {
@@ -221,7 +226,7 @@ const PlansPage = () => {
         )}
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {updatedPlans.map((plan) => (
           <Card
             key={plan.name}
@@ -265,17 +270,23 @@ const PlansPage = () => {
                 </li>
               ))}
             </ul>
-            {plan.current && (
+            {plan.current ? (
               <Button
-                className={`w-full ${
-                  plan.current
-                    ? "bg-purple-500 hover:bg-purple-600"
-                    : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                }`}
-                disabled={plan.current}
+                className="w-full bg-purple-500 hover:bg-purple-600"
+                disabled
               >
                 Current Plan
               </Button>
+            ) : (
+              plan.name === "Pro" &&
+              updatedPlans.find((p) => p.name === "Free" && p.current) && (
+                <Button
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                  onClick={() => (window.location.href = "/#pricing")}
+                >
+                  Upgrade Now
+                </Button>
+              )
             )}
           </Card>
         ))}
