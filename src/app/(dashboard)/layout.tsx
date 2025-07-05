@@ -35,8 +35,8 @@ export default function DashboardLayout({
       <div className="flex">
         <Sidebar />
 
-        <div className="flex-1 ml-80 transition-all duration-300">
-          <div className="p-8">
+        <div className="flex-1 md:ml-80 transition-all duration-300">
+          <div className="p-4 md:p-8">
             <div className="max-w-7xl mx-auto">
               <div className="flex justify-end mb-4">
                 <div className="flex items-center space-x-2">

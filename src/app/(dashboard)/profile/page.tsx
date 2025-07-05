@@ -76,12 +76,12 @@ const ProfilePage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-8"
+      className="space-y-6 sm:space-y-8 px-1 sm:px-0"
     >
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-2xl blur-xl" />
         <Card className="relative bg-background/80 backdrop-blur-sm border-border/50 p-8">
-          <div className="flex items-center space-x-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
             <div className="relative">
               <Avatar className="w-20 h-20">
                 {profile?.image ? (
@@ -100,7 +100,7 @@ const ProfilePage = () => {
               </Avatar>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-background" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 text-center sm:text-left mt-2 sm:mt-0">
               <h2 className="text-2xl font-bold text-foreground">
                 {profile?.name}
               </h2>
@@ -117,7 +117,7 @@ const ProfilePage = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <Card className="bg-background/80 backdrop-blur-sm border-border/50 p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-foreground">

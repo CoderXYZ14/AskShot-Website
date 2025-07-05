@@ -124,7 +124,7 @@ const PlansPage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-8"
+      className="space-y-6 sm:space-y-8 px-1 sm:px-0"
     >
       <div className="text-center">
         <h2 className="text-3xl font-bold text-foreground mb-2">
@@ -136,7 +136,7 @@ const PlansPage = () => {
       </div>
 
       <Card className="bg-background/80 backdrop-blur-sm border-border/50 p-6">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 mb-4">
           <h3 className="text-lg font-semibold text-foreground">
             Usage Statistics
           </h3>
@@ -221,7 +221,7 @@ const PlansPage = () => {
         )}
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {updatedPlans.map((plan) => (
           <Card
             key={plan.name}
@@ -237,7 +237,7 @@ const PlansPage = () => {
               </Badge>
             )}
             <div className="text-center mb-6">
-              <div className="flex items-center justify-center mb-2">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0 mb-2">
                 {plan.name === "Free" && (
                   <Zap className="w-6 h-6 text-gray-400" />
                 )}

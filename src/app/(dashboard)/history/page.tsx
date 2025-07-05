@@ -56,7 +56,7 @@ const HistoryPage = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const questionsContainerRef = useRef<HTMLDivElement>(null);
-  const pdfRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     fetchScreenshots();
   }, []);
@@ -110,9 +110,10 @@ const HistoryPage = () => {
     setNewQuestion("");
     setIsAnalyzing(true);
 
-    // Create temporary question object
+    // Create temporary question object with unique ID
+    const tempId = `temp-${Date.now()}`;
     const tempQuestion: Question = {
-      _id: `temp-${Date.now()}`,
+      _id: tempId,
       question: questionText,
       answer: null,
       screenshotId: selectedScreenshot._id,
@@ -148,46 +149,87 @@ const HistoryPage = () => {
 
       const aiAnswer = analyzeRes.data.answer || "No answer available";
 
-      // Update the temporary question with the answer
-      const finalQuestions = updatedQuestions.map((q) =>
-        q._id === tempQuestion._id
-          ? { ...q, answer: aiAnswer, isLoading: false }
-          : q
-      );
+      // Update the questions directly from the current state
+      setSelectedScreenshot((current) => {
+        if (!current) return null;
 
-      const finalScreenshot = {
-        ...selectedScreenshot,
-        questions: finalQuestions,
-        questionsCount: finalQuestions.length,
-      };
+        const updatedQuestions = current.questions.map((q) =>
+          q._id === tempId ? { ...q, answer: aiAnswer, isLoading: false } : q
+        );
 
-      setSelectedScreenshot(finalScreenshot);
+        return {
+          ...current,
+          questions: updatedQuestions,
+          questionsCount: updatedQuestions.length,
+        };
+      });
 
-      // Update screenshots array
-      setScreenshots((prev) =>
-        prev.map((s) =>
-          s._id === selectedScreenshot._id ? finalScreenshot : s
-        )
-      );
+      // Update screenshots array using the functional update pattern
+      setScreenshots((prev) => {
+        return prev.map((s) => {
+          if (s._id !== selectedScreenshot._id) return s;
+
+          const updatedQuestions = s.questions.map((q) =>
+            q._id === tempId ? { ...q, answer: aiAnswer, isLoading: false } : q
+          );
+
+          return {
+            ...s,
+            questions: updatedQuestions,
+            questionsCount: updatedQuestions.length,
+          };
+        });
+      });
     } catch (err) {
       console.error("Error asking question:", err);
 
-      // Remove the temporary question on error
-      const questionsWithoutTemp = updatedQuestions.filter(
-        (q) => q._id !== tempQuestion._id
-      );
-      const errorScreenshot = {
-        ...selectedScreenshot,
-        questions: questionsWithoutTemp,
-        questionsCount: questionsWithoutTemp.length,
-      };
+      // Default error message
+      let errorMessage = "Failed to analyze screenshot. Please try again.";
 
-      setSelectedScreenshot(errorScreenshot);
-      setScreenshots((prev) =>
-        prev.map((s) =>
-          s._id === selectedScreenshot._id ? errorScreenshot : s
-        )
-      );
+      // Check for specific error types
+      if (axios.isAxiosError(err)) {
+        // Handle 403 error (no credits left)
+        if (err.response?.status === 403) {
+          errorMessage =
+            "You've used all your credits. Please upgrade your plan to continue.";
+        }
+      }
+
+      // Update with error message using functional update pattern
+      setSelectedScreenshot((current) => {
+        if (!current) return null;
+
+        const updatedQuestions = current.questions.map((q) =>
+          q._id === tempId
+            ? { ...q, answer: errorMessage, isLoading: false }
+            : q
+        );
+
+        return {
+          ...current,
+          questions: updatedQuestions,
+          questionsCount: updatedQuestions.length,
+        };
+      });
+
+      // Update screenshots array
+      setScreenshots((prev) => {
+        return prev.map((s) => {
+          if (s._id !== selectedScreenshot._id) return s;
+
+          const updatedQuestions = s.questions.map((q) =>
+            q._id === tempId
+              ? { ...q, answer: errorMessage, isLoading: false }
+              : q
+          );
+
+          return {
+            ...s,
+            questions: updatedQuestions,
+            questionsCount: updatedQuestions.length,
+          };
+        });
+      });
     } finally {
       setIsAnalyzing(false);
     }
@@ -357,11 +399,10 @@ const HistoryPage = () => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="space-y-6"
+      className="space-y-6 px-1 sm:px-2"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+        <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
           Screenshot History
         </h2>
         <div className="flex items-center space-x-2">
@@ -369,108 +410,135 @@ const HistoryPage = () => {
             variant={historyView === "grid" ? "default" : "outline"}
             size="sm"
             onClick={() => setHistoryView("grid")}
-            className="p-2"
+            className="flex items-center"
           >
-            <Grid3X3 className="w-4 h-4" />
+            <Grid3X3 className="w-4 h-4 mr-1" />
+            Grid
           </Button>
           <Button
             variant={historyView === "list" ? "default" : "outline"}
             size="sm"
             onClick={() => setHistoryView("list")}
-            className="p-2"
+            className="flex items-center"
           >
-            <List className="w-4 h-4" />
+            <List className="w-4 h-4 mr-1" />
+            List
           </Button>
         </div>
       </div>
 
-      {/* Content */}
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
+          <p className="text-muted-foreground">Loading screenshots...</p>
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-          {error}
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-red-500 mb-2">{error}</p>
+          <Button onClick={fetchScreenshots}>Try Again</Button>
         </div>
       ) : screenshots.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          No screenshots found. Take a screenshot using the extension.
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="bg-blue-500/10 p-6 rounded-full mb-4">
+            <Plus className="w-10 h-10 text-blue-500" />
+          </div>
+          <h3 className="text-lg font-medium text-foreground mb-2">
+            No screenshots yet
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            Use the AskShot extension to capture screenshots and ask questions
+            about them.
+          </p>
+          <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
+            Open Extension
+          </Button>
         </div>
       ) : (
-        <div
-          className={
-            historyView === "grid"
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              : "space-y-3"
-          }
-        >
-          {screenshots.map((screenshot) => (
-            <motion.div
-              key={screenshot._id}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              onClick={() => setSelectedScreenshot(screenshot)}
-              className="cursor-pointer"
-            >
-              <Card
-                className={`bg-background/80 backdrop-blur-sm border-border/50 overflow-hidden hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 ${
-                  historyView === "list" ? "flex" : ""
-                }`}
-              >
-                <div
-                  className={`${
-                    historyView === "list" ? "w-48 h-32" : "aspect-video"
-                  } relative overflow-hidden`}
+        <>
+          {historyView === "grid" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {screenshots.map((screenshot) => (
+                <Card
+                  key={screenshot._id}
+                  className={`bg-background/80 backdrop-blur-sm border-border/50 overflow-hidden hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 ${
+                    selectedScreenshot?._id === screenshot._id
+                      ? "ring-2 ring-blue-500"
+                      : ""
+                  }`}
+                  onClick={() => setSelectedScreenshot(screenshot)}
                 >
-                  <Image
-                    src={screenshot.imageUrl}
-                    alt={`Screenshot ${new Date(
-                      screenshot.createdAt
-                    ).toLocaleDateString()}`}
-                    width={historyView === "list" ? 200 : 400}
-                    height={historyView === "list" ? 150 : 300}
-                    className="w-full h-full object-cover"
-                  />
-                  {historyView === "grid" && (
-                    <>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <p className="text-white/70 text-xs">
-                          {new Date(screenshot.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Badge className="absolute top-3 right-3 bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
-                        {screenshot.questionsCount} questions
-                      </Badge>
-                    </>
-                  )}
-                </div>
-                {historyView === "list" && (
-                  <div className="flex-1 p-3 flex flex-col justify-between">
-                    <div>
-                      <p className="text-sm font-medium">
-                        {new Date(screenshot.createdAt).toLocaleDateString()},{" "}
-                        {new Date(screenshot.createdAt).toLocaleTimeString()}
+                  <div className="aspect-video relative overflow-hidden">
+                    <Image
+                      src={screenshot.imageUrl}
+                      alt={`Screenshot ${new Date(
+                        screenshot.createdAt
+                      ).toLocaleDateString()}`}
+                      width={400}
+                      height={300}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <p className="text-white/70 text-xs">
+                        {new Date(screenshot.createdAt).toLocaleDateString()}
                       </p>
-                      {screenshot.questionsCount > 0 && (
-                        <p className="text-xs text-blue-500 mt-1">
-                          {screenshot.questionsCount} question
-                          {screenshot.questionsCount !== 1 ? "s" : ""}
-                        </p>
-                      )}
                     </div>
-                    <div className="flex justify-end">
-                      <Badge variant="outline" className="text-xs">
-                        View details
-                      </Badge>
+                    <Badge className="absolute top-3 right-3 bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
+                      {screenshot.questionsCount} questions
+                    </Badge>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {screenshots.map((screenshot) => (
+                <Card
+                  key={screenshot._id}
+                  className={`bg-background/80 backdrop-blur-sm border-border/50 overflow-hidden hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 ${
+                    selectedScreenshot?._id === screenshot._id
+                      ? "ring-2 ring-blue-500"
+                      : ""
+                  }`}
+                  onClick={() => setSelectedScreenshot(screenshot)}
+                >
+                  <div className="flex flex-col">
+                    <div className="aspect-video relative overflow-hidden">
+                      <Image
+                        src={screenshot.imageUrl}
+                        alt={`Screenshot ${new Date(
+                          screenshot.createdAt
+                        ).toLocaleDateString()}`}
+                        width={200}
+                        height={150}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 p-3 flex flex-col justify-between">
+                      <div>
+                        <p className="text-sm font-medium">
+                          {new Date(screenshot.createdAt).toLocaleDateString()},{" "}
+                          {new Date(screenshot.createdAt).toLocaleTimeString()}
+                        </p>
+                        {screenshot.questionsCount > 0 && (
+                          <p className="text-xs text-blue-500 mt-1">
+                            {screenshot.questionsCount} question
+                            {screenshot.questionsCount !== 1 ? "s" : ""}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex justify-end">
+                        <Badge variant="outline" className="text-xs">
+                          View details
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                )}
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal */}
@@ -490,295 +558,181 @@ const HistoryPage = () => {
               className="bg-background border border-border rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
-              <div className="p-6 border-b border-border flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-foreground">
-                  Screenshot from{" "}
-                  {new Date(selectedScreenshot.createdAt).toLocaleDateString()}
-                </h3>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDownloadPDF}
-                    disabled={isAnalyzing}
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-4 h-4 mr-2" />
-                        Download PDF
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-red-400 border-red-500/30 hover:bg-red-500/10"
-                    onClick={() =>
-                      handleDeleteScreenshot(selectedScreenshot._id)
-                    }
-                    disabled={deletingScreenshot}
-                  >
-                    {deletingScreenshot ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedScreenshot(null)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-              <div
-                ref={pdfRef}
-                style={{
-                  position: "absolute",
-                  left: "-9999px",
-                  width: "794px", // A4 width in pixels (210mm)
-                  padding: "20px",
-                  backgroundColor: "white",
-                }}
-              >
-                <div style={{ marginBottom: "20px", textAlign: "center" }}>
-                  <h1
-                    style={{
-                      fontSize: "24px",
-                      fontWeight: "bold",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    Screenshot Analysis Report
-                  </h1>
-                  <p style={{ fontSize: "14px", color: "#666" }}>
-                    Generated on {new Date().toLocaleDateString()} at{" "}
-                    {new Date().toLocaleTimeString()}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      color: "#666",
-                      marginBottom: "20px",
-                    }}
-                  >
-                    Original screenshot taken on{" "}
-                    {new Date(
-                      selectedScreenshot.createdAt
-                    ).toLocaleDateString()}
-                  </p>
-                </div>
-
-                <div
-                  style={{
-                    marginBottom: "30px",
-                    border: "1px solid #eee",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                  }}
-                >
-                  <Image
-                    src={selectedScreenshot.imageUrl}
-                    alt="Screenshot"
-                    width={800}
-                    height={600}
-                    style={{ width: "100%", height: "auto", display: "block" }}
-                  />
-                </div>
-
-                <div style={{ marginTop: "30px" }}>
-                  <h2
-                    style={{
-                      fontSize: "20px",
-                      fontWeight: "bold",
-                      marginBottom: "15px",
-                      borderBottom: "1px solid #eee",
-                      paddingBottom: "5px",
-                    }}
-                  >
-                    Questions & Answers ({selectedScreenshot.questions.length})
-                  </h2>
-
-                  {selectedScreenshot.questions.map((question, index) => (
-                    <div
-                      key={question._id}
-                      style={{
-                        marginBottom: "20px",
-                        paddingBottom: "20px",
-                        borderBottom:
-                          index < selectedScreenshot.questions.length - 1
-                            ? "1px solid #f0f0f0"
-                            : "none",
-                      }}
-                    >
-                      <div style={{ marginBottom: "10px" }}>
-                        <p
-                          style={{
-                            fontWeight: "bold",
-                            color: "#333",
-                            marginBottom: "5px",
-                          }}
+              <div className="flex flex-col md:flex-row h-full max-h-[90vh]">
+                {/* Keep original large device layout - side by side */}
+                <div className="w-full md:w-1/2 border-b md:border-b-0 md:border-r border-border/50 flex flex-col">
+                  <div className="p-4 sm:p-6 border-b border-border/50">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg sm:text-xl font-semibold text-foreground">
+                        Screenshot
+                      </h3>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            window.open(selectedScreenshot.imageUrl, "_blank")
+                          }
                         >
-                          Q{index + 1}: {question.question}
-                        </p>
-                        <p style={{ fontSize: "12px", color: "#999" }}>
-                          Asked at{" "}
-                          {new Date(question.createdAt).toLocaleTimeString()}
-                        </p>
+                          <Download className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedScreenshot(null)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
                       </div>
+                    </div>
+                  </div>
+                  {/* Image container - smaller on mobile, full on desktop */}
+                  <div className="flex-1 overflow-auto p-4 sm:p-6 max-h-48 md:max-h-none">
+                    <div className="relative">
+                      <Image
+                        src={selectedScreenshot.imageUrl}
+                        alt="Screenshot"
+                        width={1200}
+                        height={800}
+                        className="w-full h-auto rounded-lg border border-border/50"
+                      />
+                    </div>
+                  </div>
+                </div>
 
-                      {question.answer ? (
-                        <div
-                          style={{
-                            backgroundColor: "#f8fafc",
-                            padding: "10px 15px",
-                            borderRadius: "6px",
-                            borderLeft: "3px solid #3b82f6",
-                          }}
+                {/* Chat section with fixed scrolling */}
+                <div className="w-full md:w-1/2 flex flex-col min-h-0">
+                  <div className="p-4 sm:p-6 border-b border-border/50 flex-shrink-0">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg sm:text-xl font-semibold text-foreground">
+                        Questions & Answers
+                      </h3>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleDownloadPDF}
                         >
-                          <p style={{ color: "#333" }}>{question.answer}</p>
+                          <Download className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() =>
+                            handleDeleteScreenshot(selectedScreenshot._id)
+                          }
+                          disabled={deletingScreenshot}
+                        >
+                          {deletingScreenshot ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 overflow-auto p-4 sm:p-6 flex flex-col min-h-0">
+                    <div className="flex items-center mb-4">
+                      <MessageSquare className="w-5 h-5 mr-2 text-blue-400" />
+                      <h4 className="text-lg font-semibold text-foreground">
+                        Questions ({selectedScreenshot.questions.length})
+                      </h4>
+                    </div>
+
+                    <div
+                      ref={questionsContainerRef}
+                      className="space-y-3 mb-4 flex-1 overflow-y-auto pr-2 min-h-0"
+                      style={{ scrollBehavior: "smooth" }}
+                    >
+                      {selectedScreenshot.questions.length === 0 ? (
+                        <div className="text-center py-6 text-muted-foreground">
+                          No questions yet. Ask your first question below.
                         </div>
                       ) : (
-                        <p style={{ color: "#999", fontStyle: "italic" }}>
-                          No answer provided
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Modal Content */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 h-[70vh]">
-                {/* Image Section */}
-                <div className="p-6">
-                  <Image
-                    src={selectedScreenshot.imageUrl}
-                    alt={`Screenshot from ${new Date(
-                      selectedScreenshot.createdAt
-                    ).toLocaleDateString()}`}
-                    width={800}
-                    height={600}
-                    className="w-full h-full object-contain rounded-lg"
-                  />
-                </div>
-
-                {/* Chat Section */}
-                <div className="border-l border-border p-6 flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-foreground flex items-center">
-                      <MessageSquare className="w-5 h-5 mr-2 text-blue-400" />
-                      Questions ({selectedScreenshot.questions.length})
-                    </h4>
-                  </div>
-
-                  {/* Questions Container */}
-                  <div
-                    ref={questionsContainerRef}
-                    className="flex-1 space-y-3 overflow-y-auto mb-4 max-h-[50vh] pr-2"
-                    style={{ scrollBehavior: "smooth" }}
-                  >
-                    {selectedScreenshot.questions.length === 0 ? (
-                      <div className="text-center py-6 text-muted-foreground">
-                        No questions yet. Ask your first question below.
-                      </div>
-                    ) : (
-                      selectedScreenshot.questions.map((question) => (
-                        <div key={question._id} className="space-y-2">
-                          {/* Question */}
-                          <div className="group relative">
-                            <div className="rounded-lg p-3 bg-muted/50 ml-8">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <p className="text-sm font-medium text-foreground">
-                                    {question.question}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    {new Date(
-                                      question.createdAt
-                                    ).toLocaleTimeString()}
-                                  </p>
+                        selectedScreenshot.questions.map((question) => (
+                          <div key={question._id} className="space-y-2">
+                            <div className="group relative">
+                              <div className="rounded-lg p-3 bg-muted/50 ml-8">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-foreground">
+                                      {question.question}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {new Date(
+                                        question.createdAt
+                                      ).toLocaleTimeString()}
+                                    </p>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-auto text-red-400 hover:bg-red-500/10"
+                                    onClick={() =>
+                                      handleDeleteQuestion(question._id)
+                                    }
+                                    disabled={
+                                      deletingQuestionId === question._id
+                                    }
+                                  >
+                                    {deletingQuestionId === question._id ? (
+                                      <Loader2 className="w-3 h-3 animate-spin" />
+                                    ) : (
+                                      <Trash2 className="w-3 h-3" />
+                                    )}
+                                  </Button>
                                 </div>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-auto text-red-400 hover:bg-red-500/10"
-                                  onClick={() =>
-                                    handleDeleteQuestion(question._id)
-                                  }
-                                  disabled={deletingQuestionId === question._id}
-                                >
-                                  {deletingQuestionId === question._id ? (
-                                    <Loader2 className="w-3 h-3 animate-spin" />
-                                  ) : (
-                                    <Trash2 className="w-3 h-3" />
-                                  )}
-                                </Button>
                               </div>
                             </div>
+
+                            {question.isLoading ? (
+                              <div className="rounded-lg p-3 bg-blue-500/10 border border-blue-500/20 mr-8 flex items-center justify-center">
+                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                <span className="text-sm text-muted-foreground">
+                                  Analyzing...
+                                </span>
+                              </div>
+                            ) : question.answer ? (
+                              <div className="rounded-lg p-3 bg-blue-500/10 border border-blue-500/20 mr-8">
+                                <p className="text-sm text-foreground">
+                                  {question.answer}
+                                </p>
+                              </div>
+                            ) : null}
                           </div>
+                        ))
+                      )}
+                    </div>
 
-                          {/* Answer */}
-                          {question.isLoading ? (
-                            <div className="rounded-lg p-3 bg-blue-500/10 border border-blue-500/20 mr-8 flex items-center justify-center">
-                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                              <span className="text-sm text-muted-foreground">
-                                Analyzing...
-                              </span>
-                            </div>
-                          ) : question.answer ? (
-                            <div className="rounded-lg p-3 bg-blue-500/10 border border-blue-500/20 mr-8">
-                              <p className="text-sm text-foreground">
-                                {question.answer}
-                              </p>
-                            </div>
-                          ) : null}
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  {/* Input Section */}
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Ask a question about this screenshot..."
-                      value={newQuestion}
-                      onChange={(e) => setNewQuestion(e.target.value)}
-                      className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      disabled={isAnalyzing}
-                      onKeyDown={(e) => {
-                        if (
-                          e.key === "Enter" &&
-                          newQuestion.trim() &&
-                          !isAnalyzing
-                        ) {
-                          handleAskQuestion();
-                        }
-                      }}
-                    />
-                    <Button
-                      size="sm"
-                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                      onClick={handleAskQuestion}
-                      disabled={!newQuestion.trim() || isAnalyzing}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <input
+                        type="text"
+                        placeholder="Ask a question about this screenshot..."
+                        value={newQuestion}
+                        onChange={(e) => setNewQuestion(e.target.value)}
+                        className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        disabled={isAnalyzing}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Enter" &&
+                            newQuestion.trim() &&
+                            !isAnalyzing
+                          ) {
+                            handleAskQuestion();
+                          }
+                        }}
+                      />
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                        onClick={handleAskQuestion}
+                        disabled={!newQuestion.trim() || isAnalyzing}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
