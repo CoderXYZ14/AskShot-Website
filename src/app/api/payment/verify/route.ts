@@ -4,6 +4,7 @@ import { authOptions } from "../../auth/[...nextauth]/options";
 import dbConnect from "../../../../lib/dbConnect";
 import UserModel, { User } from "../../../../models/User";
 import { verifyPayment } from "../../../../lib/cashfree";
+import { redis } from "../../../../lib/redis";
 
 export async function GET(request: Request) {
   try {
@@ -43,9 +44,21 @@ export async function GET(request: Request) {
 
           if (user) {
             user.tier = "paid";
-            user.maxCredits = 20; // Increase maxCredits for premium users
-            user.freeTrialsLeft = user.maxCredits; // Set freeTrialsLeft to match maxCredits
+            user.maxCredits = 20;
+            user.freeTrialsLeft = user.maxCredits;
             await user.save();
+
+            // Invalidate Redis cache for user data
+            const userEmail = session.user.email;
+            try {
+              await Promise.all([
+                redis.del(`user:tier:${userEmail}`),
+                redis.del(`user:profile:${userEmail}`),
+                redis.del(`user:credits:${userEmail}`),
+              ]);
+            } catch (redisError) {
+              console.error("Redis cache invalidation error:", redisError);
+            }
 
             return NextResponse.json({
               success: true,

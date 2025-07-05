@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "../../../../lib/dbConnect";
 import UserModel, { User } from "../../../../models/User";
 import OrderModel from "../../../../models/Order";
+import { redis } from "../../../../lib/redis";
 
 export async function POST(request: Request) {
   try {
@@ -25,9 +26,19 @@ export async function POST(request: Request) {
         const user = (await UserModel.findById(order.userId).exec()) as User;
         if (user) {
           user.tier = "paid";
-          user.maxCredits = 20; // Increase maxCredits for premium users
-          user.freeTrialsLeft = user.maxCredits; // Reset free trials
+          user.maxCredits = 20;
+          user.freeTrialsLeft = user.maxCredits;
           await user.save();
+
+          try {
+            await Promise.all([
+              redis.del(`user:tier:${user.email}`),
+              redis.del(`user:profile:${user.email}`),
+              redis.del(`user:credits:${user.email}`),
+            ]);
+          } catch (redisError) {
+            console.error("Redis cache invalidation error:", redisError);
+          }
         }
       }
     }
