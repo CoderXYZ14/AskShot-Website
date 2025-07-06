@@ -57,6 +57,17 @@ export const metadata: Metadata = {
     images: ["/og-cover.png"],
     creator: "@coderxyz14",
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", type: "image/x-icon" },
@@ -66,6 +77,7 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
     shortcut: "/favicon.ico",
   },
+  authors: [{ name: "Shahwaiz Islam" }],
 };
 
 export default function RootLayout({
