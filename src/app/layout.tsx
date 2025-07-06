@@ -37,21 +37,21 @@ export const metadata: Metadata = {
     title: "AskShot — Screenshot & Ask AI Instantly",
     description:
       "Draw, capture, and chat. AskShot lets you screenshot any part of a webpage and ask questions with AI — right inside your browser.",
-    url: "https://askshot.xyz",
+    url: "/",
     siteName: "AskShot",
     images: [
       {
         url: "/og-cover.png",
         width: 1200,
         height: 630,
-        alt: "AskShot - Screenshot & Ask AI Instantly",
+        alt: "AskShot — Screenshot & Ask AI Instantly",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AskShot - Screenshot & Ask AI Instantly",
+    title: "AskShot — Screenshot & Ask AI Instantly",
     description:
       "Capture any part of a webpage and chat with AI about it. AskShot makes visual Q&A effortless.",
     images: ["/og-cover.png"],
