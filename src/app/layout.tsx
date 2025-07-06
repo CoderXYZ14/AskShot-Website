@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://askshot.xyz'),
+  metadataBase: new URL("https://askshot.xyz"),
   title: "AskShot — Screenshot & Ask AI Instantly",
   description:
     "AskShot is a Chrome extension that lets you draw on any webpage, capture a section, and instantly ask AI about it. Ideal for visual Q&A, fast learning, and on-page explanations.",
@@ -58,13 +58,9 @@ export const metadata: Metadata = {
     creator: "@coderxyz14",
   },
   icons: {
-    icon: [
-      {
-        url: "/logo.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    shortcut: "/logo.svg",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.png",
   },
 };
 
