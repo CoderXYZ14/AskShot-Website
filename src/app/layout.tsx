@@ -77,6 +77,36 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.svg" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              name: "AskShot",
+              url: "https://askshot.xyz",
+
+              knowsAbout: [
+                "AskShot",
+                "AI screenshot tool",
+                "Chrome AI extension",
+                "ask AI from screenshot",
+                "screenshot to chat AI",
+                "visual Q&A",
+                "AI webpage assistant",
+                "image understanding AI",
+                "draw to ask AI",
+                "screenshot GPT",
+                "AI for web browsing",
+                "ask AI anything",
+                "instant visual search",
+              ],
+
+              description:
+                "Draw, capture, and chat. AskShot lets you screenshot any part of a webpage and ask questions with AI — right inside your browser.",
+            }),
+          }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
