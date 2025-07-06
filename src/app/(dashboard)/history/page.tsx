@@ -381,7 +381,23 @@ const HistoryPage = () => {
         }
       });
 
-      pdf.save(`screenshot-analysis-${selectedScreenshot._id}.pdf`);
+      // Mobile-friendly approach: create a blob URL and open it in a new tab
+      const pdfBlob = pdf.output("blob");
+      const blobUrl = URL.createObjectURL(pdfBlob);
+
+      // Create a link element and trigger download
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `screenshot-analysis-${selectedScreenshot._id}.pdf`;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(link);
+      }, 100);
     } catch (error) {
       console.error("PDF generation failed:", error);
     } finally {
