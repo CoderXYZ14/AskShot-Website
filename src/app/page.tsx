@@ -51,6 +51,7 @@ import Link from "next/link";
 import Script from "next/script";
 import axios from "axios";
 import { signOut } from "next-auth/react";
+import Image from "next/image";
 
 declare global {
   interface Window {
@@ -560,6 +561,28 @@ const AskShotLanding: React.FC = () => {
                   FAQ
                 </Link>
               </motion.div>
+              <motion.div
+                className="flex flex-col items-center"
+                whileHover={{ scale: 1.05 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <span className="text-xs text-white mb-1">🔥 Trending on</span>
+                <Link
+                  href="https://www.producthunt.com/posts/askshot?utm_source=badge-featured&utm_medium=badge"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=989044&theme=light&t=1751814643084"
+                    alt="AskShot - Your browser, now smarter with AI screenshots | Product Hunt"
+                    width={110}
+                    height={24}
+                    className="hover:opacity-90 transition-opacity"
+                  />
+                </Link>
+              </motion.div>
               <div className="flex items-center space-x-2 bg-muted/50 rounded-full p-1 backdrop-blur-sm">
                 <Sun className="h-4 w-4" />
                 <Switch checked={isDark} onCheckedChange={handleThemeChange} />
@@ -686,6 +709,23 @@ const AskShotLanding: React.FC = () => {
                 <Sun className="h-4 w-4" />
                 <Switch checked={isDark} onCheckedChange={handleThemeChange} />
                 <Moon className="h-4 w-4" />
+              </div>
+              <div className="flex flex-col items-center py-3 space-y-2">
+                <span className="text-xs text-white">🔥 Trending on</span>
+                <Link
+                  href="https://www.producthunt.com/posts/askshot?utm_source=badge-featured&utm_medium=badge"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Image
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=989044&theme=light&t=1751814643084"
+                    alt="AskShot on Product Hunt"
+                    width={130}
+                    height={28}
+                    className="hover:opacity-90 transition-opacity"
+                  />
+                </Link>
               </div>
               <AnimatePresence mode="wait" initial={false}>
                 {session ? (
@@ -1854,16 +1894,40 @@ const AskShotLanding: React.FC = () => {
           </div>
 
           <Separator className="my-12 bg-border/50" />
-
+          <motion.div
+            className="flex flex-col items-center justify-center mt-8 mb-6"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="text-sm text-muted-foreground mb-2">
+              Featured on
+            </div>
+            <Link
+              href="https://www.producthunt.com/posts/askshot"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=989044&theme=light&t=1751814643084"
+                alt="AskShot on Product Hunt"
+                width={150}
+                height={32}
+                className="hover:opacity-90 transition-opacity"
+              />
+            </Link>
+          </motion.div>
           <div className="flex flex-col sm:flex-row justify-between items-center">
             <motion.p
-              className="text-muted-foreground"
+              className="text-sm text-muted-foreground"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
               © 2025 AskShot. All rights reserved.
             </motion.p>
+
             <motion.div
               className="flex items-center space-x-4 mt-4 sm:mt-0"
               initial={{ opacity: 0, y: 10 }}
