@@ -58,9 +58,13 @@ export const metadata: Metadata = {
     creator: "@coderxyz14",
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", type: "image/x-icon" },
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
     shortcut: "/favicon.ico",
-    apple: "/favicon.png",
   },
 };
 
