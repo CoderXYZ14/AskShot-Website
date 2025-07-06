@@ -283,7 +283,6 @@ const HistoryPage = () => {
       setDeletingScreenshot(false);
     }
   };
-
   const handleDownloadPDF = async () => {
     if (!selectedScreenshot) return;
 
@@ -291,9 +290,9 @@ const HistoryPage = () => {
       setIsAnalyzing(true);
       const pdf = new jsPDF("p", "mm", "a4");
       const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 15;
 
-      // Title and metadata
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(18);
       pdf.text("Screenshot Analysis Report", pageWidth / 2, 20, {
@@ -309,42 +308,69 @@ const HistoryPage = () => {
         45
       );
 
-      // Image section - SAFE APPROACH without Image()
       let yPos = 55;
       const imgWidth = pageWidth - 2 * margin;
-      const imgHeight = imgWidth * 0.5625; // 16:9 aspect ratio (good default)
 
       try {
-        // Directly add base64 image with fixed aspect ratio
-        pdf.addImage({
-          imageData: selectedScreenshot.imageUrl,
-          x: margin,
-          y: yPos,
-          width: imgWidth,
-          height: imgHeight,
-          format: "JPEG",
+        const img = new window.Image();
+        img.crossOrigin = "anonymous";
+
+        await new Promise<void>((resolve) => {
+          img.onload = () => {
+            const aspectRatio = img.height / img.width;
+            const imgHeight = Math.min(
+              imgWidth * aspectRatio,
+              pageHeight * 0.4
+            );
+
+            if (yPos + imgHeight > pageHeight - 30) {
+              pdf.addPage();
+              yPos = 20;
+            }
+
+            try {
+              pdf.addImage(
+                selectedScreenshot.imageUrl,
+                "JPEG",
+                margin,
+                yPos,
+                imgWidth,
+                imgHeight
+              );
+              yPos += imgHeight + 15;
+            } catch (e) {
+              console.error("Image embedding failed:", e);
+              pdf.text("[Screenshot not available]", margin, yPos);
+              yPos += 20;
+            }
+            resolve();
+          };
+
+          img.onerror = () => {
+            pdf.text("[Screenshot not available]", margin, yPos);
+            yPos += 20;
+            resolve();
+          };
+
+          img.src = selectedScreenshot.imageUrl;
         });
-        yPos += imgHeight + 15;
       } catch (e) {
-        console.error("Image embedding failed:", e);
+        console.error("Image processing failed:", e);
         pdf.text("[Screenshot not available]", margin, yPos);
         yPos += 20;
       }
 
-      // Questions section
       pdf.setFontSize(16);
       pdf.text("Questions & Answers", margin, yPos);
       yPos += 10;
 
       pdf.setFontSize(12);
       selectedScreenshot.questions.forEach((q, i) => {
-        // Page management
-        if (yPos > pdf.internal.pageSize.getHeight() - 30) {
+        if (yPos > pageHeight - 30) {
           pdf.addPage();
           yPos = 20;
         }
 
-        // Question
         pdf.setFont("helvetica", "bold");
         const questionText = `Q${i + 1}: ${q.question}`;
         const questionLines = pdf.splitTextToSize(
@@ -354,7 +380,6 @@ const HistoryPage = () => {
         pdf.text(questionLines, margin, yPos);
         yPos += questionLines.length * 6 + 2;
 
-        // Answer
         pdf.setFont("helvetica", "normal");
         const answerText = q.answer || "No answer provided";
         const answerLines = pdf.splitTextToSize(
@@ -362,10 +387,7 @@ const HistoryPage = () => {
           pageWidth - 2 * margin - 5
         );
 
-        if (
-          yPos + answerLines.length * 6 >
-          pdf.internal.pageSize.getHeight() - 20
-        ) {
+        if (yPos + answerLines.length * 6 > pageHeight - 20) {
           pdf.addPage();
           yPos = 20;
         }
@@ -373,7 +395,6 @@ const HistoryPage = () => {
         pdf.text(answerLines, margin + 5, yPos);
         yPos += answerLines.length * 6 + 10;
 
-        // Separator
         if (i < selectedScreenshot.questions.length - 1) {
           pdf.setDrawColor(200, 200, 200);
           pdf.line(margin, yPos, pageWidth - margin, yPos);
@@ -381,23 +402,49 @@ const HistoryPage = () => {
         }
       });
 
-      // Mobile-friendly approach: create a blob URL and open it in a new tab
-      const pdfBlob = pdf.output("blob");
-      const blobUrl = URL.createObjectURL(pdfBlob);
+      const fileName = `screenshot-analysis-${selectedScreenshot._id}.pdf`;
 
-      // Create a link element and trigger download
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `screenshot-analysis-${selectedScreenshot._id}.pdf`;
-      link.style.display = "none";
-      document.body.appendChild(link);
-      link.click();
+      const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
 
-      // Clean up
-      setTimeout(() => {
-        URL.revokeObjectURL(blobUrl);
-        document.body.removeChild(link);
-      }, 100);
+      if (isMobile) {
+        const pdfData = pdf.output("datauristring");
+        const newWindow = window.open();
+        if (newWindow) {
+          newWindow.document.write(`
+            <html>
+              <head><title>PDF Download</title></head>
+              <body>
+                <h3>Your PDF is ready!</h3>
+                <p>Click the link below to download:</p>
+                <a href="${pdfData}" download="${fileName}">Download PDF</a>
+                <br><br>
+                <p><small>If download doesn't start automatically, long-press the link and select "Download"</small></p>
+              </body>
+            </html>
+          `);
+          newWindow.document.close();
+        } else {
+          pdf.save(fileName);
+        }
+      } else {
+        const pdfBlob = pdf.output("blob");
+        const blobUrl = URL.createObjectURL(pdfBlob);
+
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = fileName;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+
+        setTimeout(() => {
+          URL.revokeObjectURL(blobUrl);
+          document.body.removeChild(link);
+        }, 100);
+      }
     } catch (error) {
       console.error("PDF generation failed:", error);
     } finally {

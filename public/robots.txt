@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://askshot.xyz
+
+# Sitemaps
+Sitemap: https://askshot.xyz/sitemap.xml
