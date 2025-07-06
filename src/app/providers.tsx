@@ -7,7 +7,14 @@ import { ThemeProvider } from "next-themes";
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem
+        disableTransitionOnChange
+        storageKey="askshot-theme"
+        enableColorScheme
+      >
         {children}
       </ThemeProvider>
     </SessionProvider>

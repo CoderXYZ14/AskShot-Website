@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,20 @@ import { AnimatedGrid, FloatingParticles } from "@/components/design";
 
 export default function NotFound() {
   const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
+  const [isDark, setIsDark] = useState(false);
 
+  // Initialize and sync theme
+  useEffect(() => {
+    const isDarkMode =
+      theme === "dark" ||
+      (theme === "system" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+    setIsDark(isDarkMode);
+    document.documentElement.classList.toggle("dark", isDarkMode);
+  }, [theme]);
+
+  // Update theme when switch changes
   const handleThemeChange = (checked: boolean) => {
     setTheme(checked ? "dark" : "light");
   };

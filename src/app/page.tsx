@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 import {
   Header,
@@ -19,11 +20,27 @@ import {
 
 const AskShotLanding = () => {
   const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
+  const [isDark, setIsDark] = useState(true);
 
+  // Sync local state with theme system
+  useEffect(() => {
+    setIsDark(theme === "dark");
+  }, [theme]);
+
+  // Update theme when switch changes
   const handleThemeChange = (checked: boolean) => {
+    setIsDark(checked);
     setTheme(checked ? "dark" : "light");
   };
+
+  // Apply theme changes to document
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDark]);
 
   return (
     <div

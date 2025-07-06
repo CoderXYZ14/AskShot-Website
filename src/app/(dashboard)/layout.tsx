@@ -1,10 +1,9 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Moon, Sun } from "lucide-react";
-
 import { Switch } from "@/components/ui/switch";
 
 export default function DashboardLayout({
@@ -13,9 +12,9 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { theme, setTheme } = useTheme();
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [isDarkMode, setIsDarkMode] = useState(theme === "dark");
 
-  // Sync local state with theme
+  // Sync local state with theme system
   useEffect(() => {
     setIsDarkMode(theme === "dark");
   }, [theme]);
@@ -26,12 +25,17 @@ export default function DashboardLayout({
     setTheme(checked ? "dark" : "light");
   };
 
+  // Apply theme changes to document
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDarkMode]);
+
   return (
-    <div
-      className={`min-h-screen ${
-        isDarkMode ? "dark" : ""
-      } bg-background text-foreground`}
-    >
+    <div className="min-h-screen bg-background text-foreground">
       <div className="flex">
         <Sidebar />
 

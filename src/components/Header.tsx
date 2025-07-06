@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
+
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import Image from "next/image";
@@ -10,32 +10,18 @@ import { Menu, Moon, Sparkles, Sun, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { URLS } from "@/lib/constants";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface HeaderProps {
-  isDark?: boolean;
-  onThemeChange?: (checked: boolean) => void;
+  isDark: boolean;
+  onThemeChange: (checked: boolean) => void;
 }
 
-export default function Header({
-  isDark: propIsDark,
-  onThemeChange,
-}: HeaderProps = {}) {
+export default function Header({ isDark, onThemeChange }: HeaderProps) {
   const { data: session } = useSession();
-  const { theme, setTheme } = useTheme();
   const router = useRouter();
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isDark = propIsDark !== undefined ? propIsDark : theme === "dark";
-
-  const handleThemeChange = (checked: boolean) => {
-    if (onThemeChange) {
-      onThemeChange(checked);
-    } else {
-      setTheme(checked ? "dark" : "light");
-    }
-  };
 
   useEffect(() => {
     if (!showDropdown) return;
@@ -135,7 +121,7 @@ export default function Header({
             </motion.div>
             <div className="flex items-center space-x-2 bg-muted/50 rounded-full p-1 backdrop-blur-sm">
               <Sun className="h-4 w-4" />
-              <Switch checked={isDark} onCheckedChange={handleThemeChange} />
+              <Switch checked={isDark} onCheckedChange={onThemeChange} />
               <Moon className="h-4 w-4" />
             </div>
             <AnimatePresence mode="wait" initial={false}>
@@ -257,7 +243,7 @@ export default function Header({
             </Link>
             <div className="flex items-center space-x-2">
               <Sun className="h-4 w-4" />
-              <Switch checked={isDark} onCheckedChange={handleThemeChange} />
+              <Switch checked={isDark} onCheckedChange={onThemeChange} />
               <Moon className="h-4 w-4" />
             </div>
             <div className="flex flex-col items-center py-3 space-y-2">
