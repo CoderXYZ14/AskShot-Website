@@ -12,6 +12,6 @@ module.exports = {
         allow: "/",
       },
     ],
-    additionalSitemaps: ["https://askshot.xyz/sitemap.xml"],
+    additionalSitemaps: [],
   },
 };
