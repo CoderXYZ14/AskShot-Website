@@ -78,6 +78,9 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
   },
   authors: [{ name: "Shahwaiz Islam" }],
+  alternates: {
+    canonical: "https://askshot.xyz/",
+  },
 };
 
 export default function RootLayout({
@@ -94,10 +97,15 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Person",
+              "@type": "SoftwareApplication",
               name: "AskShot",
               url: "https://askshot.xyz",
-
+              applicationCategory: "BusinessApplication",
+              applicationSubCategory: "ProductivityApplication",
+              applicationSuite: "AskShot",
+              applicationVersion: "1.0.0",
+              applicationReleaseDate: "2025-07-08",
+              applicationProvider: "AskShot",
               knowsAbout: [
                 "AskShot",
                 "AI screenshot tool",
