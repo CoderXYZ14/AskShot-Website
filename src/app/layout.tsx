@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-
+import { Toaster } from "sonner";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -68,15 +68,21 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  appleWebApp: {
+    title: "EchoLoom",
+    capable: true,
+    statusBarStyle: "default",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", type: "image/x-icon" },
-      { url: "/favicon.ico", type: "image/png", sizes: "96x96" },
-      { url: "/favicon.ico", type: "image/svg+xml" },
+      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon0.svg", type: "image/svg+xml" },
     ],
-    apple: "/favicon.ico",
+    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
     shortcut: "/favicon.ico",
   },
+  manifest: "/manifest.json",
   authors: [{ name: "Shahwaiz Islam" }],
   alternates: {
     canonical: "https://askshot.xyz/",
@@ -91,7 +97,24 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+
+        {/* Additional favicon formats - use your existing files */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+        <link rel="icon" type="image/svg+xml" href="/icon0.svg" />
+
+        {/* Apple touch icons */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
+
+        {/* Web App Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+
+        {/* Web app meta tags */}
+        <meta name="apple-mobile-web-app-title" content="AskShot" />
+        <meta name="application-name" content="AskShot" />
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="msapplication-TileColor" content="#ffffff" />
+
         <link rel="canonical" href="https://askshot.xyz/" />
 
         <script
@@ -123,7 +146,10 @@ export default function RootLayout({
                 "ask AI anything",
                 "instant visual search",
               ],
-
+              author: {
+                "@type": "Person",
+                name: "Shahwaiz Islam",
+              },
               description:
                 "Draw, capture, and chat. AskShot lets you screenshot any part of a webpage and ask questions with AI — right inside your browser.",
             }),
@@ -133,7 +159,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <Toaster
+            theme="light"
+            duration={2000}
+            position="bottom-right"
+            richColors
+          />
+        </Providers>
       </body>
     </html>
   );
